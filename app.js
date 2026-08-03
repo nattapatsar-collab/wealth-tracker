@@ -2512,31 +2512,31 @@ function renderBudgetControl() {
     else if (ruleGroup === "Savings") ruleGroupText = "เงินออม (Savings)";
 
     wrapper.innerHTML = `
-      <div class="breakdown-item ${activeClass}" data-category="${cat}" style="cursor: pointer; padding: 10px 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 10px; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; width: 100%; align-items: stretch; text-align: left !important;">
+      <div class="breakdown-item ${activeClass}" data-category="${cat}" style="cursor: pointer; padding: 14px 16px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 12px; transition: all 0.2s; display: flex; flex-direction: column; gap: 8px; width: 100%; align-items: stretch; text-align: left !important; box-shadow: 0 4px 12px rgba(0,0,0,0.25);">
         <!-- Row 1: Name and Amount -->
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left !important;">
           <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; justify-content: flex-start !important; text-align: left !important;">
             <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${barColor}; flex-shrink: 0;"></span>
-            <strong style="color: var(--text-primary); font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left !important;">${cat}</strong>
+            <strong style="color: #ffffff; font-size: 0.92rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left !important;">${cat}</strong>
           </div>
-          <div style="font-size: 0.85rem; flex-shrink: 0; font-weight: 600; text-align: right !important;">
-            <span style="color: #f8fafc;">${formatCurrency(spent).replace("฿", "")}</span>
-            <span style="color: #94a3b8; font-size: 0.78rem; font-weight: normal;"> / ฿${formatCurrency(limit).replace("฿", "")}</span>
+          <div style="font-size: 0.88rem; flex-shrink: 0; font-weight: 700; text-align: right !important;">
+            <span style="color: #ffffff;">${formatCurrency(spent).replace("฿", "")}</span>
+            <span style="color: #cbd5e1; font-size: 0.8rem; font-weight: 600;"> / ฿${formatCurrency(limit).replace("฿", "")}</span>
           </div>
         </div>
 
         <!-- Row 2: Pace Badge / Category group and Percentage -->
-        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 20px; text-align: left !important;">
+        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 22px; text-align: left !important;">
           <div style="display: flex; align-items: center; min-width: 0; flex: 1; justify-content: flex-start !important; text-align: left !important;">
-            ${paceBadgeHtml ? `<div style="text-align: left !important; display: flex; justify-content: flex-start !important;">${paceBadgeHtml}</div>` : `<span style="font-size: 0.75rem; color: #94a3b8; text-align: left !important;">${ruleGroupText}</span>`}
+            ${paceBadgeHtml ? `<div style="text-align: left !important; display: flex; justify-content: flex-start !important;">${paceBadgeHtml}</div>` : `<span style="font-size: 0.78rem; color: #cbd5e1; font-weight: 600; text-align: left !important;">${ruleGroupText}</span>`}
           </div>
-          <div style="font-size: 0.85rem; font-weight: 700; color: ${spent > limit ? '#ef4444' : 'var(--text-secondary)'}; flex-shrink: 0; text-align: right !important;">
+          <div style="font-size: 0.88rem; font-weight: 700; color: ${spent > limit ? '#ef4444' : '#f8fafc'}; flex-shrink: 0; text-align: right !important;">
             ${percent.toFixed(0)}%
           </div>
         </div>
 
         <!-- Row 3: Progress Bar -->
-        <div class="breakdown-bar-bg" style="height: 7px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; width: 100%; margin-top: 2px;">
+        <div class="breakdown-bar-bg" style="height: 8px; background: rgba(255, 255, 255, 0.12); border-radius: 4px; overflow: hidden; width: 100%; margin-top: 2px;">
           <div class="breakdown-bar-fill" style="width: 0%; background: ${barColor}; height: 100%; transition: width 0.8s ease-out;"></div>
         </div>
       </div>
