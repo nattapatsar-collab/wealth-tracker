@@ -2506,57 +2506,59 @@ function renderBudgetControl() {
     else if (ruleGroup === "Savings") ruleGroupText = "เงินออม (Savings)";
 
     wrapper.innerHTML = `
-      <div class="breakdown-item ${activeClass}" data-category="${cat}" style="cursor: pointer; padding: 7px 10px; border-radius: 8px; transition: background 0.2s; display: flex; flex-direction: column; gap: 4px; width: 100%; align-items: stretch; text-align: left !important;">
+      <div class="breakdown-item ${activeClass}" data-category="${cat}" style="cursor: pointer; padding: 10px 12px; background: rgba(255, 255, 255, 0.03); border: 1px solid var(--glass-border); border-radius: 10px; transition: all 0.2s; display: flex; flex-direction: column; gap: 6px; width: 100%; align-items: stretch; text-align: left !important;">
         <!-- Row 1: Name and Amount -->
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: left !important;">
-          <div style="display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; justify-content: flex-start !important; text-align: left !important;">
-            <span style="display:inline-block; width:8px; height:8px; border-radius:50%; background:${barColor}; flex-shrink: 0;"></span>
-            <strong style="color: var(--text-primary); font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left !important;">${cat}</strong>
+          <div style="display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; justify-content: flex-start !important; text-align: left !important;">
+            <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${barColor}; flex-shrink: 0;"></span>
+            <strong style="color: var(--text-primary); font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left !important;">${cat}</strong>
           </div>
-          <div style="font-size: 0.8rem; flex-shrink: 0; font-weight: 500; text-align: right !important;">
-            <span style="color: var(--text-primary);">${formatCurrency(spent).replace("฿", "")}</span>
-            <span style="color: var(--text-muted); font-size: 0.75rem;">/ ${formatCurrency(limit).replace("฿", "")}</span>
+          <div style="font-size: 0.85rem; flex-shrink: 0; font-weight: 600; text-align: right !important;">
+            <span style="color: #f8fafc;">${formatCurrency(spent).replace("฿", "")}</span>
+            <span style="color: #94a3b8; font-size: 0.78rem; font-weight: normal;"> / ฿${formatCurrency(limit).replace("฿", "")}</span>
           </div>
         </div>
 
         <!-- Row 2: Pace Badge / Category group and Percentage -->
         <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; min-height: 20px; text-align: left !important;">
           <div style="display: flex; align-items: center; min-width: 0; flex: 1; justify-content: flex-start !important; text-align: left !important;">
-            ${paceBadgeHtml ? `<div style="text-align: left !important; display: flex; justify-content: flex-start !important;">${paceBadgeHtml}</div>` : `<span style="font-size: 0.7rem; color: var(--text-muted); text-align: left !important;">${ruleGroupText}</span>`}
+            ${paceBadgeHtml ? `<div style="text-align: left !important; display: flex; justify-content: flex-start !important;">${paceBadgeHtml}</div>` : `<span style="font-size: 0.75rem; color: #94a3b8; text-align: left !important;">${ruleGroupText}</span>`}
           </div>
-          <div style="font-size: 0.8rem; font-weight: 600; color: ${spent > limit ? 'var(--color-expense)' : 'var(--text-secondary)'}; flex-shrink: 0; text-align: right !important;">
+          <div style="font-size: 0.85rem; font-weight: 700; color: ${spent > limit ? '#ef4444' : 'var(--text-secondary)'}; flex-shrink: 0; text-align: right !important;">
             ${percent.toFixed(0)}%
           </div>
         </div>
 
         <!-- Row 3: Progress Bar -->
-        <div class="breakdown-bar-bg" style="height: 6px; background: rgba(255, 255, 255, 0.05); border-radius: 3px; overflow: hidden; width: 100%; margin-top: 2px;">
+        <div class="breakdown-bar-bg" style="height: 7px; background: rgba(255, 255, 255, 0.08); border-radius: 4px; overflow: hidden; width: 100%; margin-top: 2px;">
           <div class="breakdown-bar-fill" style="width: 0%; background: ${barColor}; height: 100%; transition: width 0.8s ease-out;"></div>
         </div>
       </div>
       
       <!-- Collapsible Detail Panel -->
-      <div class="breakdown-detail-panel ${isFilteredCategory ? 'active' : ''}" id="detail-panel-${index}">
-        <div class="detail-math-box" style="margin-top: 4px; padding: 8px 10px; background: rgba(0, 0, 0, 0.15); border-radius: 6px; font-size: 0.75rem;">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
-            <span style="color: ${spent > limit ? 'var(--color-expense)' : 'var(--color-income)'}; font-weight: 600;">${statusText}</span>
-            <span style="color: var(--text-secondary);">เฉลี่ยใช้ได้: ฿${Math.round(allowedDailyAvgRemaining).toLocaleString()}/วัน</span>
+      <div class="breakdown-detail-panel ${isFilteredCategory ? 'active' : ''}" id="detail-panel-${index}" style="margin-top: 10px; margin-bottom: 8px; width: 100%;">
+        <div class="detail-math-box" style="padding: 14px 16px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 8px;">
+            <span style="color: ${spent > limit ? '#ef4444' : '#34d399'}; font-weight: 700; font-size: 0.88rem;">${statusText}</span>
+            <span style="color: #cbd5e1; font-size: 0.82rem;">เฉลี่ยใช้ได้: <strong style="color: #38bdf8; font-size: 0.88rem;">฿${Math.round(allowedDailyAvgRemaining).toLocaleString()}/วัน</strong></span>
           </div>
-          <div style="border-top: 1px dashed rgba(255,255,255,0.05); margin-top: 6px; padding-top: 6px; color: var(--text-muted); font-size: 0.7rem; line-height: 1.4;">
-            <strong>📊 รายละเอียดการคำนวณ:</strong><br>
-            • งบสำหรับช่วงเวลา: ฿${limit.toLocaleString("th-TH", {minimumFractionDigits: 2})}<br>
-            • ใช้จ่ายแล้ว: ฿${spent.toLocaleString("th-TH", {minimumFractionDigits: 2})}<br>
-            ${spent > limit 
-              ? `• <span style="color: var(--color-expense);">ยอดเกินงบประมาณ: ฿${(spent - limit).toLocaleString("th-TH", {minimumFractionDigits: 2})}</span><br>`
-              : `• ยอดคงเหลือเบื้องต้น: ฿${remainingLimit.toLocaleString("th-TH", {minimumFractionDigits: 2})}<br>
-                 • หักสัดส่วนชดเชยหมวดที่เกิน: -฿${deficitShare.toLocaleString("th-TH", {minimumFractionDigits: 2})}<br>
-                 • ยอดคงเหลือที่ใช้ได้จริง: <strong>฿${adjustedRemaining.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong><br>`
-            }
-            • วันคงเหลือในรอบ: ${remainingDays} วัน (เฉลี่ยงบตั้งต้น ฿${dailyLimit.toLocaleString("th-TH", {maximumFractionDigits: 2})}/วัน)
+          <div style="margin-top: 8px; color: #e2e8f0; font-size: 0.8rem; line-height: 1.6;">
+            <strong style="color: #ffffff; font-size: 0.85rem; display: block; margin-bottom: 6px;">📊 รายละเอียดการคำนวณ:</strong>
+            <div style="display: flex; flex-direction: column; gap: 4px; color: #cbd5e1;">
+              <div>• งบสำหรับช่วงเวลา: <strong style="color: #ffffff;">฿${limit.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+              <div>• ใช้จ่ายแล้ว: <strong style="color: #ffffff;">฿${spent.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+              ${spent > limit 
+                ? `<div>• <span style="color: #ef4444; font-weight: 700;">ยอดเกินงบประมาณ: ฿${(spent - limit).toLocaleString("th-TH", {minimumFractionDigits: 2})}</span></div>`
+                : `<div>• ยอดคงเหลือเบื้องต้น: <strong style="color: #ffffff;">฿${remainingLimit.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+                   <div>• หักสัดส่วนชดเชยหมวดที่เกิน: <strong style="color: #ffffff;">-฿${deficitShare.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+                   <div>• ยอดคงเหลือที่ใช้ได้จริง: <strong style="color: #34d399; font-size: 0.9rem; font-weight: 700;">฿${adjustedRemaining.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>`
+              }
+              <div>• วันคงเหลือในรอบ: <strong style="color: #ffffff;">${remainingDays} วัน</strong> (เฉลี่ยงบตั้งต้น ฿${dailyLimit.toLocaleString("th-TH", {maximumFractionDigits: 2})}/วัน)</div>
+            </div>
           </div>
         </div>
-        <div class="detail-txns-title" style="font-size: 0.75rem; font-weight: 600; margin-top: 10px; margin-bottom: 6px; color: var(--text-primary);">🧾 รายการล่าสุดในหมวดหมู่นี้:</div>
-        <div class="detail-txns-list" id="detail-txns-${index}">
+        <div class="detail-txns-title" style="font-size: 0.82rem; font-weight: 600; margin-top: 12px; margin-bottom: 8px; color: #ffffff;">🧾 รายการล่าสุดในหมวดหมู่นี้:</div>
+        <div class="detail-txns-list" id="detail-txns-${index}" style="display: flex; flex-direction: column; gap: 6px;">
           <!-- Loaded dynamically -->
         </div>
       </div>

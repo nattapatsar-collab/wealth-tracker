@@ -1214,14 +1214,32 @@ tr:hover td {
 }
 
 .budget-category-wrapper {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   padding-bottom: 4px;
   margin-bottom: 4px;
 }
 .budget-category-wrapper:last-child {
-  border-bottom: none;
   padding-bottom: 0;
   margin-bottom: 0;
+}
+
+.breakdown-detail-panel {
+  display: none;
+  width: 100%;
+}
+.breakdown-detail-panel.active {
+  display: block;
+}
+
+.detail-txn-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: #e2e8f0;
 }
 
 #budget-breakdown-list::-webkit-scrollbar {
