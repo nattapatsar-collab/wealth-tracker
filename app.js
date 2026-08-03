@@ -4053,8 +4053,9 @@ function renderCharts() {
                     return data.labels.map((label, i) => {
                       const val = data.datasets[0].data[i];
                       const pct = totalExpenseSum > 0 ? ((val / totalExpenseSum) * 100).toFixed(0) : 0;
+                      const formattedBaht = "฿" + Math.round(val).toLocaleString();
                       return {
-                        text: `${label} (${pct}%)`,
+                        text: `${label}: ${formattedBaht} (${pct}%)`,
                         fillStyle: data.datasets[0].backgroundColor[i],
                         strokeStyle: data.datasets[0].borderColor,
                         lineWidth: 1,
@@ -5851,6 +5852,130 @@ document.addEventListener("DOMContentLoaded", async () => {
       console.error("Fallback copy failed: ", err);
       showStatus("ไม่สามารถคัดลอกอัตโนมัติได้", "error");
     }
+  }
+  
+  // --- CHART IMAGE SUMMARY GENERATOR & MODAL ---
+  function generateCompositeChartImage() {
+    const canvas1 = document.getElementById("monthlyChart");
+    const canvas2 = document.getElementById("categoryChart");
+    const canvas3 = document.getElementById("locationChart");
+
+    const compCanvas = document.createElement("canvas");
+    compCanvas.width = 1200;
+    compCanvas.height = 920;
+    const ctx = compCanvas.getContext("2d");
+
+    // Dark slate gradient background
+    const grad = ctx.createLinearGradient(0, 0, 0, 920);
+    grad.addColorStop(0, "#0f172a");
+    grad.addColorStop(1, "#1e293b");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 1200, 920);
+
+    // Header Title Banner
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 28px 'Outfit', 'Noto Sans Thai', sans-serif";
+    ctx.fillText("Wealth Tracker — สรุปรายงานกราฟการเงิน", 40, 52);
+
+    // Date range & KPI Summary Subheader
+    const startVal = document.getElementById("filter-start-date")?.value || "";
+    const endVal = document.getElementById("filter-end-date")?.value || "";
+    const rangeText = (startVal && endVal) ? `ช่วงเวลา: ${startVal} ถึง ${endVal}` : "ช่วงเวลาทั้งหมด";
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "16px 'Outfit', 'Noto Sans Thai', sans-serif";
+    ctx.fillText(rangeText, 40, 82);
+
+    // Divider Line
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(40, 98);
+    ctx.lineTo(1160, 98);
+    ctx.stroke();
+
+    // 1. Monthly Chart (Top area)
+    if (canvas1) {
+      ctx.drawImage(canvas1, 40, 115, 1120, 360);
+    }
+
+    // 2. Category Chart (Bottom left)
+    if (canvas2) {
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 18px 'Outfit', 'Noto Sans Thai', sans-serif";
+      ctx.fillText("สัดส่วนค่าใช้จ่ายตามหมวดหมู่ (บาท & %)", 40, 515);
+      ctx.drawImage(canvas2, 40, 530, 540, 350);
+    }
+
+    // 3. Location Chart (Bottom right)
+    if (canvas3) {
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 18px 'Outfit', 'Noto Sans Thai', sans-serif";
+      ctx.fillText("ยอดใช้จ่ายแยกตามสถานที่ / ผู้รับเงิน (บาท)", 620, 515);
+      ctx.drawImage(canvas3, 620, 530, 540, 350);
+    }
+
+    return compCanvas.toDataURL("image/png");
+  }
+
+  function openChartImageModal() {
+    const modal = document.getElementById("chart-image-modal");
+    const imgPreview = document.getElementById("chart-summary-img-preview");
+    const directLink = document.getElementById("chart-image-direct-link");
+    const downloadBtn = document.getElementById("btn-download-chart-image");
+
+    if (!modal) return;
+
+    try {
+      const dataUrl = generateCompositeChartImage();
+      if (imgPreview) imgPreview.src = dataUrl;
+      if (directLink) directLink.href = dataUrl;
+      if (downloadBtn) downloadBtn.href = dataUrl;
+
+      modal.classList.add("active");
+      if (window.lucide) window.lucide.createIcons();
+    } catch (e) {
+      console.error("Error generating chart image:", e);
+      showStatus("เกิดข้อผิดพลาดในการสร้างรูปภาพกราฟ", "error");
+    }
+  }
+
+  function closeChartImageModal() {
+    const modal = document.getElementById("chart-image-modal");
+    if (modal) modal.classList.remove("active");
+  }
+
+  const btnOpenChartImage = document.getElementById("btn-open-chart-image-modal");
+  const btnCloseChartImage = document.getElementById("btn-close-chart-image-modal");
+  const btnCopyChartImageLink = document.getElementById("btn-copy-chart-image-link");
+  const modalChartImage = document.getElementById("chart-image-modal");
+
+  if (btnOpenChartImage) {
+    btnOpenChartImage.addEventListener("click", openChartImageModal);
+  }
+  if (btnCloseChartImage) {
+    btnCloseChartImage.addEventListener("click", closeChartImageModal);
+  }
+  if (modalChartImage) {
+    modalChartImage.addEventListener("click", (e) => {
+      if (e.target === modalChartImage) closeChartImageModal();
+    });
+  }
+
+  if (btnCopyChartImageLink) {
+    btnCopyChartImageLink.addEventListener("click", () => {
+      const imgPreview = document.getElementById("chart-summary-img-preview");
+      if (imgPreview && imgPreview.src) {
+        const linkUrl = imgPreview.src;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(linkUrl)
+            .then(() => showStatus("คัดลอกลิงก์รูปภาพสรุปสำเร็จ!", "success"))
+            .catch(() => fallbackCopyText(linkUrl));
+        } else {
+          fallbackCopyText(linkUrl);
+        }
+      }
+    });
   }
   
   // Initialize Lucide icons on page load completion
