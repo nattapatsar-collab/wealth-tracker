@@ -408,6 +408,41 @@
         </div>
       </section>
 
+      <!-- 1.5 Analytics Breakdown Charts Grid (Category & Location) -->
+      <div class="analytics-charts-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; width: 100%;">
+        <!-- Category Chart Card -->
+        <section class="glass-panel" style="display: flex; flex-direction: column; gap: 12px; min-height: 440px;">
+          <div class="chart-title">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="pie-chart" style="color: #38bdf8;"></i>
+              สัดส่วนค่าใช้จ่ายตามหมวดหมู่
+            </span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -6px; margin-bottom: 4px;">
+            สรุปยอดรวมค่าใช้จ่ายแยกตามแต่ละหมวดหมู่
+          </p>
+          <div class="chart-wrapper" style="flex: 1; min-height: 320px; position: relative;">
+            <canvas id="categoryChart"></canvas>
+          </div>
+        </section>
+
+        <!-- Location / Merchant Chart Card -->
+        <section class="glass-panel" style="display: flex; flex-direction: column; gap: 12px; min-height: 440px;">
+          <div class="chart-title">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="store" style="color: #f59e0b;"></i>
+              ยอดใช้จ่ายแยกตามสถานที่ / ผู้รับเงิน
+            </span>
+          </div>
+          <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: -6px; margin-bottom: 4px;">
+            สรุปสถานที่ หรือผู้รับเงิน ที่มีมูลค่าการใช้จ่ายสูงสุด (Top Merchants & Locations)
+          </p>
+          <div class="chart-wrapper" style="flex: 1; min-height: 320px; position: relative;">
+            <canvas id="locationChart"></canvas>
+          </div>
+        </section>
+      </div>
+
       <!-- 2. Sub-cards Grid (50/30/20 & Savings Goal) -->
       <div class="sub-cards-grid">
         <!-- 50/30/20 Rule Analysis -->

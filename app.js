@@ -27,6 +27,8 @@ let currentPage = 1;
 let itemsPerPage = 25;
 let isApiMode = false;
 let monthlyChart = null;
+let categoryChart = null;
+let locationChart = null;
 let chartMonthlyData = {};
 let activeRuleFilter = "";     // Interactive dashboard 50/30/20 rule filter
 let activeBudgetTab = "active"; // "active", "all", "needs", "wants"
@@ -3939,6 +3941,204 @@ function renderCharts() {
     },
     plugins: [datalabelsPlugin]
   });
+
+  // --- 2. Category Breakdown Chart (Doughnut Chart) ---
+  const categoryCanvas = document.getElementById("categoryChart");
+  if (categoryCanvas) {
+    if (categoryChart) categoryChart.destroy();
+    
+    const catSums = {};
+    let totalExpenseSum = 0;
+    
+    filteredTransactions.forEach(t => {
+      if (t.type !== "Expense") return;
+      const cat = t.category || "เบ็ดเตล็ดและอื่น ๆ";
+      const amt = parseFloat(t.total) || 0;
+      catSums[cat] = (catSums[cat] || 0) + amt;
+      totalExpenseSum += amt;
+    });
+
+    const sortedCats = Object.keys(catSums).sort((a, b) => catSums[b] - catSums[a]);
+    const catLabels = sortedCats;
+    const catData = sortedCats.map(c => catSums[c]);
+
+    const palette = [
+      "#38bdf8", "#818cf8", "#f43f5e", "#fbbf24", "#34d399",
+      "#a78bfa", "#fb923c", "#2dd4bf", "#f472b6", "#a3e635", "#cbd5e1"
+    ];
+
+    const ctxCat = categoryCanvas.getContext("2d");
+    if (catLabels.length === 0) {
+      ctxCat.clearRect(0, 0, ctxCat.canvas.width, ctxCat.canvas.height);
+    } else {
+      categoryChart = new Chart(ctxCat, {
+        type: "doughnut",
+        data: {
+          labels: catLabels,
+          datasets: [{
+            data: catData,
+            backgroundColor: palette.slice(0, catLabels.length),
+            borderColor: isDark ? "#0f172a" : "#ffffff",
+            borderWidth: 2,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: true,
+              position: "right",
+              labels: {
+                color: isDark ? "#f8fafc" : "#0f172a",
+                font: { family: "'Outfit', 'Noto Sans Thai'", size: 11 },
+                boxWidth: 12,
+                padding: 10,
+                generateLabels: function(chart) {
+                  const data = chart.data;
+                  if (data.labels.length && data.datasets.length) {
+                    return data.labels.map((label, i) => {
+                      const val = data.datasets[0].data[i];
+                      const pct = totalExpenseSum > 0 ? ((val / totalExpenseSum) * 100).toFixed(0) : 0;
+                      return {
+                        text: `${label} (${pct}%)`,
+                        fillStyle: data.datasets[0].backgroundColor[i],
+                        strokeStyle: data.datasets[0].borderColor,
+                        lineWidth: 1,
+                        hidden: isNaN(data.datasets[0].data[i]) || chart.getDatasetMeta(0).data[i].hidden,
+                        index: i
+                      };
+                    });
+                  }
+                  return [];
+                }
+              }
+            },
+            tooltip: {
+              backgroundColor: isDark ? "rgba(15, 23, 42, 0.95)" : "rgba(255, 255, 255, 0.95)",
+              titleColor: isDark ? "#fff" : "#000",
+              bodyColor: isDark ? "#fff" : "#000",
+              borderWidth: 1,
+              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const pct = totalExpenseSum > 0 ? ((val / totalExpenseSum) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ฿${val.toLocaleString("th-TH", {minimumFractionDigits: 2})} (${pct}%)`;
+                }
+              }
+            }
+          },
+          cutout: "60%"
+        }
+      });
+    }
+  }
+
+  // --- 3. Location / Merchant Breakdown Chart (Horizontal Bar Chart) ---
+  const locationCanvas = document.getElementById("locationChart");
+  if (locationCanvas) {
+    if (locationChart) locationChart.destroy();
+
+    const locSums = {};
+    filteredTransactions.forEach(t => {
+      if (t.type !== "Expense") return;
+      const loc = (t.location && t.location.trim()) ? t.location.trim() : "ทั่วไป/ไม่ระบุ";
+      const amt = parseFloat(t.total) || 0;
+      locSums[loc] = (locSums[loc] || 0) + amt;
+    });
+
+    const sortedLocs = Object.keys(locSums).sort((a, b) => locSums[b] - locSums[a]).slice(0, 8); // Top 8 locations
+    const locLabels = sortedLocs;
+    const locData = sortedLocs.map(l => locSums[l]);
+
+    const ctxLoc = locationCanvas.getContext("2d");
+    if (locLabels.length === 0) {
+      ctxLoc.clearRect(0, 0, ctxLoc.canvas.width, ctxLoc.canvas.height);
+    } else {
+      const datalabelsLocPlugin = {
+        id: 'customDatalabelsLoc',
+        afterDatasetsDraw(chart) {
+          const { ctx } = chart;
+          const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+          ctx.save();
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.font = 'bold 10px "Outfit", "Noto Sans Thai", sans-serif';
+
+          const meta = chart.getDatasetMeta(0);
+          meta.data.forEach((bar, index) => {
+            const val = locData[index];
+            if (val > 0) {
+              const formattedVal = " ฿" + Math.round(val).toLocaleString();
+              ctx.fillStyle = isDark ? '#f8fafc' : '#0f172a';
+              ctx.fillText(formattedVal, bar.x + 6, bar.y);
+            }
+          });
+          ctx.restore();
+        }
+      };
+
+      locationChart = new Chart(ctxLoc, {
+        type: "bar",
+        data: {
+          labels: locLabels,
+          datasets: [{
+            label: "ยอดใช้จ่าย (฿)",
+            data: locData,
+            backgroundColor: isDark ? "rgba(245, 158, 11, 0.75)" : "rgba(217, 119, 6, 0.85)",
+            borderColor: "#f59e0b",
+            borderWidth: 1,
+            borderRadius: 6
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          layout: {
+            padding: {
+              right: 60
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: gridColor },
+              ticks: {
+                color: textColor,
+                font: { family: "'Outfit', 'Noto Sans Thai'" },
+                callback: function(value) { return "฿" + value.toLocaleString(); }
+              }
+            },
+            y: {
+              grid: { display: false },
+              ticks: {
+                color: isDark ? "#f8fafc" : "#0f172a",
+                font: { family: "'Outfit', 'Noto Sans Thai'", size: 11, weight: 'bold' }
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: isDark ? "rgba(15, 23, 42, 0.95)" : "rgba(255, 255, 255, 0.95)",
+              titleColor: isDark ? "#fff" : "#000",
+              bodyColor: isDark ? "#fff" : "#000",
+              borderWidth: 1,
+              borderColor: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)",
+              callbacks: {
+                label: function(context) {
+                  return ` ยอดใช้จ่าย: ฿${parseFloat(context.raw).toLocaleString("th-TH", {minimumFractionDigits: 2})}`;
+                }
+              }
+            }
+          }
+        },
+        plugins: [datalabelsLocPlugin]
+      });
+    }
+  }
 }
 
 // --- TRANSACTIONS LIST / TABLE CONTROLLER ---
