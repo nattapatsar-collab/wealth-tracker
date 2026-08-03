@@ -1204,25 +1204,34 @@ tr:hover td {
 /* Custom styles for Budget categories tabs */
 #budget-breakdown-list {
   display: flex !important;
-  flex-direction: column !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
   gap: 16px !important;
   width: 100% !important;
   height: auto !important;
-  min-height: 0 !important;
+  min-height: fit-content !important;
   max-height: none !important;
-  overflow: visible !important;
-  overflow-y: visible !important;
   padding: 16px 18px 28px 18px !important;
   margin-top: 8px !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 14px !important;
   background: rgba(0, 0, 0, 0.15) !important;
+  align-items: flex-start !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .budget-category-wrapper {
-  width: 100% !important;
+  flex: 0 0 360px !important;
+  min-width: 320px !important;
+  max-width: 400px !important;
   display: flex !important;
   flex-direction: column !important;
+  height: auto !important;
+  min-height: fit-content !important;
+  max-height: none !important;
+  overflow: visible !important;
   padding-bottom: 0 !important;
   margin-bottom: 0 !important;
 }
@@ -1333,10 +1342,10 @@ tr:hover td {
 #dashboard-budget-card {
   gap: 16px !important;
   height: auto !important;
-  min-height: 0 !important;
+  min-height: fit-content !important;
   max-height: none !important;
   overflow: visible !important;
-  padding-bottom: 32px !important;
+  padding-bottom: 36px !important;
 }
 
 #budget-sub-heading {
@@ -1356,13 +1365,64 @@ tr:hover td {
 
 #budget-breakdown-list {
   display: flex !important;
-  flex-direction: column !important;
-  gap: 12px !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  gap: 16px !important;
   width: 100% !important;
   height: auto !important;
-  min-height: 0 !important;
+  min-height: fit-content !important;
   max-height: none !important;
-  overflow-y: visible !important;
+  padding: 16px 18px 28px 18px !important;
+  margin-top: 8px !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 14px !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  align-items: flex-start !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.budget-category-wrapper {
+  flex: 0 0 360px !important;
+  min-width: 320px !important;
+  max-width: 400px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  min-height: fit-content !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.breakdown-detail-panel {
+  display: none;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.breakdown-detail-panel.active {
+  display: block !important;
+}
+
+.detail-math-box {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 16px 18px !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+}
+
+@media (max-width: 600px) {
+  .budget-category-wrapper {
+    flex: 0 0 85vw !important;
+    min-width: 280px !important;
+  }
 }
 
 @media (min-width: 769px) {
