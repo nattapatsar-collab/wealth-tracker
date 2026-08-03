@@ -379,251 +379,243 @@
       </div>
     </section>
 
-    <!-- DASHBOARD CHARTS & BREAKDOWN GRID -->
-    <main class="dashboard-grid">
+    <!-- DASHBOARD CHARTS & BREAKDOWN SECTIONS -->
+    <main style="display: flex; flex-direction: column; gap: 24px; margin-bottom: 32px;">
 
-      <!-- Left Column: Trend Analysis charts & Sub-cards -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-
-        <section class="glass-panel charts-container">
-          <div class="chart-title" style="margin-bottom: 8px;">
-            <span>การเปรียบเทียบ รายได้ / รายรับ - ค่าใช้จ่าย</span>
+      <!-- 1. Top Chart Section -->
+      <section class="glass-panel charts-container">
+        <div class="chart-title" style="margin-bottom: 8px;">
+          <span>การเปรียบเทียบ รายได้ / รายรับ - ค่าใช้จ่าย</span>
+        </div>
+        <!-- MoM Trend Summary -->
+        <div id="chart-trend-summary"
+          style="margin-bottom: 16px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+          <div class="trend-selector-bar"
+            style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 4px;">
+            <span
+              style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">เปรียบเทียบผลลัพธ์ของเดือน:</span>
+            <select id="trend-primary-month" class="filter-select"
+              style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-primary); font-family: inherit; font-weight: 600; min-width: auto;"></select>
+            <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">กับเดือน:</span>
+            <select id="trend-reference-month" class="filter-select"
+              style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-primary); font-family: inherit; font-weight: 600; min-width: auto;"></select>
           </div>
-          <!-- MoM Trend Summary -->
-          <div id="chart-trend-summary"
-            style="margin-bottom: 16px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 12px; width: 100%;">
-            <div class="trend-selector-bar"
-              style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 4px;">
-              <span
-                style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">เปรียบเทียบผลลัพธ์ของเดือน:</span>
-              <select id="trend-primary-month" class="filter-select"
-                style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-primary); font-family: inherit; font-weight: 600; min-width: auto;"></select>
-              <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">กับเดือน:</span>
-              <select id="trend-reference-month" class="filter-select"
-                style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-primary); font-family: inherit; font-weight: 600; min-width: auto;"></select>
+          <div id="trend-cards-container" style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;"></div>
+        </div>
+
+        <div class="chart-wrapper">
+          <canvas id="monthlyChart"></canvas>
+        </div>
+      </section>
+
+      <!-- 2. Sub-cards Grid (50/30/20 & Savings Goal) -->
+      <div class="sub-cards-grid">
+        <!-- 50/30/20 Rule Analysis -->
+        <section class="glass-panel" id="financial-rule-card"
+          style="display: flex; flex-direction: column; gap: 16px;">
+          <div class="chart-title" style="margin-bottom: 0;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="line-chart" style="color: var(--color-primary);"></i>
+              วิเคราะห์ตามกฎ 50/30/20 (Ideal Budgeting)
+            </span>
+          </div>
+
+          <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: -8px;">
+            สัดส่วนการจัดสรรเงินที่เหมาะสมจากรายได้ / รายรับของเดือนปัจจุบัน
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 4px;">
+            <!-- Needs Rule -->
+            <div class="rule-row" data-rule="Needs"
+              style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
+                <span style="font-weight: 600; color: var(--text-primary);">Needs (จำเป็น) <span
+                    style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
+                    50%</span></span>
+                <strong id="rule-needs-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
+              </div>
+              <div class="breakdown-bar-bg" style="height: 8px;">
+                <div id="rule-needs-fill" class="breakdown-bar-fill"
+                  style="width: 0%; background: var(--color-primary); height: 100%;"></div>
+              </div>
             </div>
-            <div id="trend-cards-container" style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;"></div>
+
+            <!-- Wants Rule -->
+            <div class="rule-row" data-rule="Wants"
+              style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
+                <span style="font-weight: 600; color: var(--text-primary);">Wants (ไลฟ์สไตล์) <span
+                    style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
+                    30%</span></span>
+                <strong id="rule-wants-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
+              </div>
+              <div class="breakdown-bar-bg" style="height: 8px;">
+                <div id="rule-wants-fill" class="breakdown-bar-fill"
+                  style="width: 0%; background: #f59e0b; height: 100%;"></div>
+              </div>
+            </div>
+
+            <!-- Savings Rule -->
+            <div class="rule-row" data-rule="Savings"
+              style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
+                <span style="font-weight: 600; color: var(--text-primary);">Savings (เงินออม) <span
+                    style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
+                    20%</span></span>
+                <strong id="rule-savings-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
+              </div>
+              <div class="breakdown-bar-bg" style="height: 8px;">
+                <div id="rule-savings-fill" class="breakdown-bar-fill"
+                  style="width: 0%; background: var(--color-income); height: 100%;"></div>
+              </div>
+            </div>
           </div>
 
-          <div class="chart-wrapper">
-            <canvas id="monthlyChart"></canvas>
+          <div id="rule-advice-box"
+            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+            คำแนะนำทางการเงินตามพฤติกรรมการใช้จ่าย
           </div>
         </section>
 
-        <!-- Sub-cards Grid (50/30/20 & Savings Goal) -->
-        <div class="sub-cards-grid">
-          <!-- 50/30/20 Rule Analysis -->
-          <section class="glass-panel" id="financial-rule-card"
-            style="display: flex; flex-direction: column; gap: 16px;">
-            <div class="chart-title" style="margin-bottom: 0;">
-              <span style="display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="line-chart" style="color: var(--color-primary);"></i>
-                วิเคราะห์ตามกฎ 50/30/20 (Ideal Budgeting)
-              </span>
-            </div>
-
-            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: -8px;">
-              สัดส่วนการจัดสรรเงินที่เหมาะสมจากรายได้ / รายรับของเดือนปัจจุบัน
-            </p>
-
-            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 4px;">
-              <!-- Needs Rule -->
-              <div class="rule-row" data-rule="Needs"
-                style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
-                  <span style="font-weight: 600; color: var(--text-primary);">Needs (จำเป็น) <span
-                      style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
-                      50%</span></span>
-                  <strong id="rule-needs-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
-                </div>
-                <div class="breakdown-bar-bg" style="height: 8px;">
-                  <div id="rule-needs-fill" class="breakdown-bar-fill"
-                    style="width: 0%; background: var(--color-primary); height: 100%;"></div>
-                </div>
-              </div>
-
-              <!-- Wants Rule -->
-              <div class="rule-row" data-rule="Wants"
-                style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
-                  <span style="font-weight: 600; color: var(--text-primary);">Wants (ไลฟ์สไตล์) <span
-                      style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
-                      30%</span></span>
-                  <strong id="rule-wants-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
-                </div>
-                <div class="breakdown-bar-bg" style="height: 8px;">
-                  <div id="rule-wants-fill" class="breakdown-bar-fill"
-                    style="width: 0%; background: #f59e0b; height: 100%;"></div>
-                </div>
-              </div>
-
-              <!-- Savings Rule -->
-              <div class="rule-row" data-rule="Savings"
-                style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
-                  <span style="font-weight: 600; color: var(--text-primary);">Savings (เงินออม) <span
-                      style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
-                      20%</span></span>
-                  <strong id="rule-savings-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
-                </div>
-                <div class="breakdown-bar-bg" style="height: 8px;">
-                  <div id="rule-savings-fill" class="breakdown-bar-fill"
-                    style="width: 0%; background: var(--color-income); height: 100%;"></div>
-                </div>
-              </div>
-            </div>
-
-            <div id="rule-advice-box"
-              style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
-              คำแนะนำทางการเงินตามพฤติกรรมการใช้จ่าย
-            </div>
-          </section>
-
-          <!-- Savings Goal Planner -->
-          <section class="glass-panel" id="savings-goal-card" style="display: flex; flex-direction: column; gap: 16px;">
-            <div class="chart-title"
-              style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
-              <span style="display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="target" style="color: var(--color-secondary);"></i>
-                แผนการออมเงิน (Savings Goal)
-              </span>
-              <button id="btn-toggle-savings-settings" class="action-btn" title="เพิ่มเป้าหมายการออม"
-                style="padding: 4px; border-radius: 50%;">
-                <i data-lucide="plus" size="18"></i>
-              </button>
-            </div>
-
-            <!-- Savings Goal Settings Form -->
-            <div id="savings-settings-panel"
-              style="display: none; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--glass-border); border-radius: 12px; padding: 16px;">
-              <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
-                เพิ่มเป้าหมายการออมเงินใหม่</h4>
-              <form id="savings-settings-form" onsubmit="return false;"
-                style="display: flex; flex-direction: column; gap: 10px;">
-                <div>
-                  <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">ชื่อเป้าหมาย</label>
-                  <input type="text" id="input-savings-name" class="form-input"
-                    style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;"
-                    placeholder="เช่น ซื้อคอมพิวเตอร์, ท่องเที่ยว" required>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                  <div>
-                    <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">เป้าหมาย (บาท)</label>
-                    <input type="number" id="input-savings-target" class="form-input"
-                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" step="1" required>
-                  </div>
-                  <div>
-                    <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">เงินออมเริ่มต้น
-                      (บาท)</label>
-                    <input type="number" id="input-savings-current" class="form-input"
-                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" step="1" required>
-                  </div>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                  <div>
-                    <label class="form-label"
-                      style="font-size: 0.75rem; margin-bottom: 4px;">เป้าหมายเมื่อเดือน/ปี</label>
-                    <input type="month" id="input-savings-date" class="form-input"
-                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" required>
-                  </div>
-                  <div>
-                    <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">ส่วนแบ่งเงินออม (%)</label>
-                    <input type="number" id="input-savings-allocation" class="form-input"
-                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" min="1" max="100" step="1"
-                      required>
-                  </div>
-                </div>
-                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
-                  <button type="button" id="btn-cancel-savings" class="btn btn-secondary"
-                    style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">ยกเลิก</button>
-                  <button type="submit" id="btn-save-savings" class="btn btn-primary"
-                    style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">บันทึก</button>
-                </div>
-              </form>
-            </div>
-
-            <!-- Savings Goals Container -->
-            <div id="savings-display-panel" style="display: flex; flex-direction: column; gap: 12px;">
-              <!-- Dynamic list of savings goals populated by JS -->
-            </div>
-          </section>
-        </div>
-
-      </div>
-
-      <!-- Right Column: Budget control -->
-      <div style="display: flex; flex-direction: column; gap: 24px;">
-
-        <!-- Budget control and Category breakdown -->
-        <section class="glass-panel" id="dashboard-budget-card" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- Savings Goal Planner -->
+        <section class="glass-panel" id="savings-goal-card" style="display: flex; flex-direction: column; gap: 16px;">
           <div class="chart-title"
             style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
             <span style="display: flex; align-items: center; gap: 8px;">
-              <i data-lucide="piggy-bank"></i>
-              การควบคุมงบประมาณรายเดือน
+              <i data-lucide="target" style="color: var(--color-secondary);"></i>
+              แผนการออมเงิน (Savings Goal)
             </span>
-            <button id="btn-toggle-budget-settings" class="action-btn" title="แก้ไขงบประมาณ"
+            <button id="btn-toggle-savings-settings" class="action-btn" title="เพิ่มเป้าหมายการออม"
               style="padding: 4px; border-radius: 50%;">
-              <i data-lucide="settings" size="18"></i>
+              <i data-lucide="plus" size="18"></i>
             </button>
           </div>
 
-          <!-- Total Budget Card -->
-          <div class="budget-summary-card"
-            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px;">
-            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px;">
-              <span style="color: var(--text-secondary);">งบประมาณรวมทั้งหมด</span>
-              <strong id="budget-total-text">฿0.00 / ฿8,010.00</strong>
-            </div>
-            <div class="breakdown-bar-bg" style="height: 12px; margin-bottom: 8px;">
-              <div id="budget-total-fill" class="breakdown-bar-fill"
-                style="width: 0%; background: var(--color-primary); height: 100%;"></div>
-            </div>
-            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
-              <span id="budget-total-status" style="color: var(--text-muted);">คงเหลือ ฿8,010.00</span>
-              <span id="budget-total-percent" style="font-weight: 600;">0%</span>
-            </div>
-            <div id="budget-total-projection"
-              style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--glass-border); font-size: 0.8rem; color: var(--text-secondary); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
-              <span>ประมาณการยอดจ่ายสิ้นสุดช่วงเวลา:</span>
-              <strong id="budget-projection-value" style="color: var(--text-primary);">฿0.00</strong>
-            </div>
-            <div id="budget-risk-analysis"
-              style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 4px; background: rgba(0, 0, 0, 0.2);">
-              <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="color: var(--text-secondary); font-weight: 500;">ระดับความเสี่ยงการเกินงบ:</span>
-                <strong id="budget-risk-level-badge" class="type-badge" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">วิเคราะห์ข้อมูล...</strong>
+          <!-- Savings Goal Settings Form -->
+          <div id="savings-settings-panel"
+            style="display: none; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--glass-border); border-radius: 12px; padding: 16px;">
+            <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+              เพิ่มเป้าหมายการออมเงินใหม่</h4>
+            <form id="savings-settings-form" onsubmit="return false;"
+              style="display: flex; flex-direction: column; gap: 10px;">
+              <div>
+                <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">ชื่อเป้าหมาย</label>
+                <input type="text" id="input-savings-name" class="form-input"
+                  style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;"
+                  placeholder="เช่น ซื้อคอมพิวเตอร์, ท่องเที่ยว" required>
               </div>
-              <div id="budget-risk-desc" style="color: var(--text-muted); font-size: 0.75rem; line-height: 1.4; margin-top: 4px;">
-                ระบบกำลังคาดการณ์และประเมินพฤติกรรมการใช้จ่ายของคุณ...
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                  <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">เป้าหมาย (บาท)</label>
+                  <input type="number" id="input-savings-target" class="form-input"
+                    style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" step="1" required>
+                </div>
+                <div>
+                  <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">เงินออมเริ่มต้น
+                    (บาท)</label>
+                  <input type="number" id="input-savings-current" class="form-input"
+                    style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" step="1" required>
+                </div>
               </div>
-            </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div>
+                  <label class="form-label"
+                    style="font-size: 0.75rem; margin-bottom: 4px;">เป้าหมายเมื่อเดือน/ปี</label>
+                  <input type="month" id="input-savings-date" class="form-input"
+                    style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" required>
+                </div>
+                <div>
+                  <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">ส่วนแบ่งเงินออม (%)</label>
+                  <input type="number" id="input-savings-allocation" class="form-input"
+                    style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" min="1" max="100" step="1"
+                    required>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                <button type="button" id="btn-cancel-savings" class="btn btn-secondary"
+                  style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">ยกเลิก</button>
+                <button type="submit" id="btn-save-savings" class="btn btn-primary"
+                  style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">บันทึก</button>
+              </div>
+            </form>
           </div>
 
-          <div id="budget-sub-heading"
-            style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); margin-top: 10px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; margin-bottom: 12px;">
-            ควบคุมงบประมาณรายหมวดหมู่
-          </div>
-
-          <!-- Budget Category Tabs -->
-          <div class="budget-tabs-container" style="margin-bottom: 12px;">
-            <div class="budget-tabs" style="display: flex; gap: 4px; background: rgba(0, 0, 0, 0.15); padding: 3px; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--glass-border);">
-              <button class="budget-tab-btn active" data-tab="active" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">ที่ใช้งานอยู่</button>
-              <button class="budget-tab-btn" data-tab="all" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">ทั้งหมด</button>
-              <button class="budget-tab-btn" data-tab="needs" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">Needs</button>
-              <button class="budget-tab-btn" data-tab="wants" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">Wants</button>
-            </div>
-          </div>
-
-          <div id="budget-breakdown-list" class="breakdown-list" style="margin-top: 0;">
-            <!-- Dynamic budget category items rendered by JS -->
-            <div class="empty-state">
-              <i data-lucide="pie-chart" size="32"></i>
-              <p>ไม่พบประวัติรายการในระบบ</p>
-            </div>
+          <!-- Savings Goals Container -->
+          <div id="savings-display-panel" style="display: flex; flex-direction: column; gap: 12px;">
+            <!-- Dynamic list of savings goals populated by JS -->
           </div>
         </section>
       </div>
+
+      <!-- 3. Standalone Full-Width Section: Monthly Budget Control -->
+      <section class="glass-panel" id="dashboard-budget-card" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="chart-title"
+          style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="piggy-bank"></i>
+            การควบคุมงบประมาณรายเดือน
+          </span>
+          <button id="btn-toggle-budget-settings" class="action-btn" title="แก้ไขงบประมาณ"
+            style="padding: 4px; border-radius: 50%;">
+            <i data-lucide="settings" size="18"></i>
+          </button>
+        </div>
+
+        <!-- Total Budget Card -->
+        <div class="budget-summary-card"
+          style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px;">
+            <span style="color: var(--text-secondary);">งบประมาณรวมทั้งหมด</span>
+            <strong id="budget-total-text">฿0.00 / ฿8,010.00</strong>
+          </div>
+          <div class="breakdown-bar-bg" style="height: 12px; margin-bottom: 8px;">
+            <div id="budget-total-fill" class="breakdown-bar-fill"
+              style="width: 0%; background: var(--color-primary); height: 100%;"></div>
+          </div>
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+            <span id="budget-total-status" style="color: var(--text-muted);">คงเหลือ ฿8,010.00</span>
+            <span id="budget-total-percent" style="font-weight: 600;">0%</span>
+          </div>
+          <div id="budget-total-projection"
+            style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--glass-border); font-size: 0.8rem; color: var(--text-secondary); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+            <span>ประมาณการยอดจ่ายสิ้นสุดช่วงเวลา:</span>
+            <strong id="budget-projection-value" style="color: var(--text-primary);">฿0.00</strong>
+          </div>
+          <div id="budget-risk-analysis"
+            style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 4px; background: rgba(0, 0, 0, 0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <span style="color: var(--text-secondary); font-weight: 500;">ระดับความเสี่ยงการเกินงบ:</span>
+              <strong id="budget-risk-level-badge" class="type-badge" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">วิเคราะห์ข้อมูล...</strong>
+            </div>
+            <div id="budget-risk-desc" style="color: var(--text-muted); font-size: 0.75rem; line-height: 1.4; margin-top: 4px;">
+              ระบบกำลังคาดการณ์และประเมินพฤติกรรมการใช้จ่ายของคุณ...
+            </div>
+          </div>
+        </div>
+
+        <div id="budget-sub-heading"
+          style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); margin-top: 10px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; margin-bottom: 12px;">
+          ควบคุมงบประมาณรายหมวดหมู่
+        </div>
+
+        <!-- Budget Category Tabs -->
+        <div class="budget-tabs-container" style="margin-bottom: 12px;">
+          <div class="budget-tabs" style="display: flex; gap: 4px; background: rgba(0, 0, 0, 0.15); padding: 3px; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--glass-border); max-width: 480px;">
+            <button class="budget-tab-btn active" data-tab="active" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">ที่ใช้งานอยู่</button>
+            <button class="budget-tab-btn" data-tab="all" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">ทั้งหมด</button>
+            <button class="budget-tab-btn" data-tab="needs" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">Needs</button>
+            <button class="budget-tab-btn" data-tab="wants" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">Wants</button>
+          </div>
+        </div>
+
+        <div id="budget-breakdown-list" class="breakdown-list" style="margin-top: 0;">
+          <!-- Dynamic budget category items rendered by JS -->
+          <div class="empty-state">
+            <i data-lucide="pie-chart" size="32"></i>
+            <p>ไม่พบประวัติรายการในระบบ</p>
+          </div>
+        </div>
+      </section>
 
     </main>
 

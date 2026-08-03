@@ -1304,29 +1304,33 @@ tr:hover td {
 
 /* Monthly Budget Control Global Styles (PC & Mobile alignment) */
 #dashboard-budget-card {
-  gap: 12px !important; /* overrides inline 20px gap to shift layout up */
+  gap: 16px !important;
+  height: auto !important;
 }
 
 #budget-sub-heading {
-  margin-top: 4px !important;
-  margin-bottom: 6px !important;
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
   padding-bottom: 6px !important;
 }
 
 .budget-tabs-container {
-  margin-bottom: 6px !important;
+  margin-bottom: 10px !important;
 }
 
 .budget-summary-card {
-  padding: 10px 14px !important; /* slightly smaller padding to save vertical space */
+  padding: 14px 18px !important;
   margin-bottom: 0px !important;
 }
 
 #budget-breakdown-list {
-  flex: 1 !important;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 12px !important;
+  height: auto !important;
   min-height: 0 !important;
-  height: auto !important; /* overrides standard fixed height */
-  overflow-y: auto !important;
+  max-height: none !important;
+  overflow-y: visible !important;
 }
 
 @media (min-width: 769px) {
@@ -1335,7 +1339,7 @@ tr:hover td {
   }
   
   #dashboard-budget-card {
-    height: 1024px !important;
+    height: auto !important;
   }
   
   .chart-wrapper {
