@@ -1342,9 +1342,10 @@ tr:hover td {
 }
 
 #budget-breakdown-list {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  display: flex !important;
+  flex-direction: column !important;
   gap: 12px !important;
+  width: 100% !important;
   height: auto !important;
   min-height: 0 !important;
   max-height: none !important;

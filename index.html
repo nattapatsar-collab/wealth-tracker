@@ -716,7 +716,18 @@
 
       <!-- PAGINATION BAR -->
       <div class="pagination">
-        <div id="pagination-info">แสดงรายการ 0 - 0 จากทั้งหมด 0 รายการ</div>
+        <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+          <div id="pagination-info" style="font-size: 0.85rem;">แสดงรายการ 0 - 0 จากทั้งหมด 0 รายการ</div>
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 0.82rem; color: var(--text-secondary);">แสดงผล:</span>
+            <select id="filter-page-size" class="filter-select" style="padding: 4px 10px; font-size: 0.82rem; height: auto; cursor: pointer; border-radius: 8px;">
+              <option value="25" selected>25 รายการ / หน้า</option>
+              <option value="50">50 รายการ / หน้า</option>
+              <option value="100">100 รายการ / หน้า</option>
+              <option value="all">แสดงทั้งหมด</option>
+            </select>
+          </div>
+        </div>
         <div class="pagination-controls">
           <button id="btn-prev-page" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" disabled>
             <i data-lucide="chevron-left" size="16"></i>

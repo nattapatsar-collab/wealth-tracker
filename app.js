@@ -24,7 +24,7 @@ const SEED_TRANSACTIONS = [
 let transactions = [];
 let filteredTransactions = [];
 let currentPage = 1;
-const itemsPerPage = 15;
+let itemsPerPage = 25;
 let isApiMode = false;
 let monthlyChart = null;
 let chartMonthlyData = {};
@@ -2089,6 +2089,10 @@ function resetFilters() {
   const sortDropdown = document.getElementById("filter-sort");
   if (sortDropdown) sortDropdown.value = "newest";
   
+  const pageSizeDropdown = document.getElementById("filter-page-size");
+  if (pageSizeDropdown) pageSizeDropdown.value = "25";
+  itemsPerPage = 25;
+  
   // Set Month range tab to active
   const timeButtons = document.querySelectorAll(".time-tab-btn");
   timeButtons.forEach(b => {
@@ -4030,9 +4034,13 @@ function renderTransactionsTable() {
   });
   
   // Update pagination info text and button triggers
-  document.getElementById("pagination-info").innerText = `แสดงรายการ ${startIndex + 1} - ${endIndex} จากทั้งหมด ${totalItems} รายการ`;
+  if (itemsPerPage >= 999999) {
+    document.getElementById("pagination-info").innerText = `แสดงทั้งหมด ${totalItems} รายการ`;
+  } else {
+    document.getElementById("pagination-info").innerText = `แสดงรายการ ${startIndex + 1} - ${endIndex} จากทั้งหมด ${totalItems} รายการ`;
+  }
   document.getElementById("btn-prev-page").disabled = currentPage === 1;
-  document.getElementById("btn-next-page").disabled = currentPage === totalPages;
+  document.getElementById("btn-next-page").disabled = currentPage === totalPages || totalPages === 0;
   
   lucide.createIcons();
 }
@@ -5037,6 +5045,20 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.getElementById("filter-sort").addEventListener("change", applyFilters);
   document.getElementById("filter-start-date").addEventListener("change", applyFilters);
   document.getElementById("filter-end-date").addEventListener("change", applyFilters);
+  
+  const pageSizeSelect = document.getElementById("filter-page-size");
+  if (pageSizeSelect) {
+    pageSizeSelect.addEventListener("change", (e) => {
+      const val = e.target.value;
+      if (val === "all") {
+        itemsPerPage = 999999;
+      } else {
+        itemsPerPage = parseInt(val, 10) || 25;
+      }
+      currentPage = 1;
+      renderTransactionsTable();
+    });
+  }
   
   document.getElementById("btn-reset-filters").addEventListener("click", resetFilters);
   
