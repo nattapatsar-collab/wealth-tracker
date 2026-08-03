@@ -5862,57 +5862,78 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const compCanvas = document.createElement("canvas");
     compCanvas.width = 1200;
-    compCanvas.height = 920;
+    compCanvas.height = 1020;
     const ctx = compCanvas.getContext("2d");
 
-    // Dark slate gradient background
-    const grad = ctx.createLinearGradient(0, 0, 0, 920);
-    grad.addColorStop(0, "#0f172a");
-    grad.addColorStop(1, "#1e293b");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 1200, 920);
+    // Pure White clean background for maximum contrast & readability
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, 1200, 1020);
 
-    // Header Title Banner
+    // Header Banner Box (Navy Blue Gradient)
+    const headerGrad = ctx.createLinearGradient(0, 0, 1200, 0);
+    headerGrad.addColorStop(0, "#0f172a");
+    headerGrad.addColorStop(1, "#1e293b");
+    ctx.fillStyle = headerGrad;
+    ctx.fillRect(0, 0, 1200, 115);
+
+    // Header Title
     ctx.fillStyle = "#38bdf8";
     ctx.font = "bold 28px 'Outfit', 'Noto Sans Thai', sans-serif";
-    ctx.fillText("Wealth Tracker — สรุปรายงานกราฟการเงิน", 40, 52);
+    ctx.fillText("Wealth Tracker — สรุปรายงานกราฟการเงิน", 40, 50);
 
     // Date range & KPI Summary Subheader
     const startVal = document.getElementById("filter-start-date")?.value || "";
     const endVal = document.getElementById("filter-end-date")?.value || "";
     const rangeText = (startVal && endVal) ? `ช่วงเวลา: ${startVal} ถึง ${endVal}` : "ช่วงเวลาทั้งหมด";
 
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "16px 'Outfit', 'Noto Sans Thai', sans-serif";
-    ctx.fillText(rangeText, 40, 82);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 15px 'Outfit', 'Noto Sans Thai', sans-serif";
+    ctx.fillText(rangeText, 40, 85);
 
-    // Divider Line
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.15)";
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(40, 98);
-    ctx.lineTo(1160, 98);
-    ctx.stroke();
+    // Helper function to draw rounded card with border
+    function drawCard(x, y, w, h, title) {
+      ctx.save();
+      ctx.fillStyle = "#f8fafc";
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.lineWidth = 1.5;
+      
+      const r = 14;
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
 
-    // 1. Monthly Chart (Top area)
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 18px 'Outfit', 'Noto Sans Thai', sans-serif";
+      ctx.fillText(title, x + 20, y + 36);
+      ctx.restore();
+    }
+
+    // 1. Card 1: Monthly Chart (Top area)
+    drawCard(30, 135, 1140, 420, "📊 รายรับ - รายจ่าย รายเดือน (Monthly Income & Expenses)");
     if (canvas1) {
-      ctx.drawImage(canvas1, 40, 115, 1120, 360);
+      ctx.drawImage(canvas1, 45, 180, 1110, 360);
     }
 
-    // 2. Category Chart (Bottom left)
+    // 2. Card 2: Category Chart (Bottom left)
+    drawCard(30, 575, 555, 420, "🍕 สัดส่วนค่าใช้จ่ายตามหมวดหมู่ (บาท & %)");
     if (canvas2) {
-      ctx.fillStyle = "#f8fafc";
-      ctx.font = "bold 18px 'Outfit', 'Noto Sans Thai', sans-serif";
-      ctx.fillText("สัดส่วนค่าใช้จ่ายตามหมวดหมู่ (บาท & %)", 40, 515);
-      ctx.drawImage(canvas2, 40, 530, 540, 350);
+      ctx.drawImage(canvas2, 45, 620, 525, 360);
     }
 
-    // 3. Location Chart (Bottom right)
+    // 3. Card 3: Location Chart (Bottom right)
+    drawCard(615, 575, 555, 420, "🏪 ยอดใช้จ่ายแยกตามสถานที่ / ผู้รับเงิน (บาท)");
     if (canvas3) {
-      ctx.fillStyle = "#f8fafc";
-      ctx.font = "bold 18px 'Outfit', 'Noto Sans Thai', sans-serif";
-      ctx.fillText("ยอดใช้จ่ายแยกตามสถานที่ / ผู้รับเงิน (บาท)", 620, 515);
-      ctx.drawImage(canvas3, 620, 530, 540, 350);
+      ctx.drawImage(canvas3, 630, 620, 525, 360);
     }
 
     return compCanvas.toDataURL("image/png");
