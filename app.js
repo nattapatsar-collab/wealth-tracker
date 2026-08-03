@@ -3897,6 +3897,36 @@ function renderCharts() {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      onClick: (event, elements) => {
+        if (elements && elements.length > 0) {
+          const index = elements[0].index;
+          const clickedMonthKey = labels[index];
+          const [yr, mo] = clickedMonthKey.split("-");
+          const yrNum = parseInt(yr, 10);
+          const moNum = parseInt(mo, 10);
+          const lastDay = new Date(yrNum, moNum, 0).getDate();
+          
+          const targetStart = `${clickedMonthKey}-01`;
+          const targetEnd = `${clickedMonthKey}-${String(lastDay).padStart(2, "0")}`;
+
+          const currentStart = document.getElementById("filter-start-date").value;
+          const currentEnd = document.getElementById("filter-end-date").value;
+
+          if (currentStart === targetStart && currentEnd === targetEnd) {
+            resetFilters();
+            showStatus("ยกเลิกการเลือกเดือน แสดงข้อมูลทั้งหมดแล้ว", "info");
+          } else {
+            document.getElementById("filter-start-date").value = targetStart;
+            document.getElementById("filter-end-date").value = targetEnd;
+            document.querySelectorAll(".time-tab-btn").forEach(b => b.classList.remove("active"));
+            applyFilters();
+            showStatus(`กรองแสดงเฉพาะข้อมูลเดือน ${displayLabels[index]}`, "success");
+          }
+        }
+      },
+      onHover: (event, chartElement) => {
+        event.native.target.style.cursor = (chartElement && chartElement.length > 0) ? 'pointer' : 'default';
+      },
       layout: {
         padding: {
           top: 24
@@ -3986,6 +4016,28 @@ function renderCharts() {
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          onClick: (event, elements) => {
+            if (elements && elements.length > 0) {
+              const index = elements[0].index;
+              const clickedCat = catLabels[index];
+              const currentCat = document.getElementById("filter-category").value;
+
+              if (currentCat === clickedCat) {
+                document.getElementById("filter-category").value = "";
+                applyFilters();
+                showStatus("ยกเลิกการเลือกหมวดหมู่ แสดงข้อมูลทั้งหมดแล้ว", "info");
+              } else {
+                document.getElementById("filter-category").value = clickedCat;
+                activeRuleFilter = "";
+                document.querySelectorAll(".rule-row").forEach(el => el.classList.remove("active"));
+                applyFilters();
+                showStatus(`กรองแสดงเฉพาะหมวดหมู่ "${clickedCat}"`, "success");
+              }
+            }
+          },
+          onHover: (event, chartElement) => {
+            event.native.target.style.cursor = (chartElement && chartElement.length > 0) ? 'pointer' : 'default';
+          },
           plugins: {
             legend: {
               display: true,
@@ -4097,6 +4149,27 @@ function renderCharts() {
           indexAxis: "y",
           responsive: true,
           maintainAspectRatio: false,
+          onClick: (event, elements) => {
+            if (elements && elements.length > 0) {
+              const index = elements[0].index;
+              const clickedLoc = locLabels[index];
+              const currentSearch = document.getElementById("filter-search").value.trim();
+
+              const searchTarget = (clickedLoc === "ทั่วไป/ไม่ระบุ") ? "" : clickedLoc;
+              if (currentSearch === searchTarget && searchTarget !== "") {
+                document.getElementById("filter-search").value = "";
+                applyFilters();
+                showStatus("ยกเลิกการกรองสถานที่/ผู้รับเงิน แสดงข้อมูลทั้งหมดแล้ว", "info");
+              } else {
+                document.getElementById("filter-search").value = searchTarget;
+                applyFilters();
+                showStatus(`กรองแสดงเฉพาะสถานที่/ผู้รับเงิน "${clickedLoc}"`, "success");
+              }
+            }
+          },
+          onHover: (event, chartElement) => {
+            event.native.target.style.cursor = (chartElement && chartElement.length > 0) ? 'pointer' : 'default';
+          },
           layout: {
             padding: {
               right: 60
