@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wealth Tracker - OCR Engine Verification</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS (optional fallback styling, but we'll use vanilla CSS for custom glass UI) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    :root {
+      --font-primary: 'Outfit', 'Sarabun', sans-serif;
+      --bg-dark: #0f172a;
+      --glass-bg: rgba(30, 41, 59, 0.45);
+      --glass-border: rgba(255, 255, 255, 0.08);
+      --glass-glow: rgba(99, 102, 241, 0.15);
+      --color-primary: #6366f1;
+      --color-secondary: #a855f7;
+      --color-income: #10b981;
+      --color-expense: #ef4444;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    body {
+      font-family: var(--font-primary);
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+    }
+
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .status-badge-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: #34d399;
+    }
+
+    .status-badge-failed {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+    }
+  </style>
+</head>
+<body class="p-6 md:p-12">
+  <div class="max-w-5xl mx-auto">
+    <!-- HEADER -->
+    <header class="flex justify-between items-center mb-10 pb-6 border-b border-white/10">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          Wealth Tracker
+        </h1>
+        <p class="text-sm text-slate-400 mt-1">Fuzzy OCR & Self-Correction Engine Verification Dashboard</p>
+      </div>
+      <div class="flex gap-4">
+        <a href="index.html" class="glass-btn px-4 py-2 text-sm flex items-center gap-2">
+          <i data-lucide="home" class="w-4 h-4 text-indigo-400"></i> หน้าแรกแดชบอร์ด
+        </a>
+        <a href="ocr-sandbox.html" class="glass-btn px-4 py-2 text-sm flex items-center gap-2">
+          <i data-lucide="terminal" class="w-4 h-4 text-purple-400"></i> OCR Sandbox
+        </a>
+      </div>
+    </header>
+
+    <!-- METRICS OVERVIEW -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <div class="glass-card p-6 flex flex-col justify-between">
+        <span class="text-sm text-slate-400 font-medium">รวมการทดสอบทั้งหมด</span>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span id="total-tests" class="text-4xl font-bold">0</span>
+          <span class="text-sm text-slate-500">เคส</span>
+        </div>
+      </div>
+      <div class="glass-card p-6 flex flex-col justify-between border-emerald-500/20">
+        <span class="text-sm text-emerald-400 font-medium flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span> ผ่านการตรวจสอบ
+        </span>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span id="passed-tests" class="text-4xl font-bold text-emerald-400">0</span>
+          <span class="text-sm text-slate-500">เคส</span>
+        </div>
+      </div>
+      <div class="glass-card p-6 flex flex-col justify-between border-rose-500/20">
+        <span class="text-sm text-rose-400 font-medium flex items-center gap-1.5">
+          <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span> ไม่ผ่านการตรวจสอบ
+        </span>
+        <div class="flex items-baseline gap-2 mt-2">
+          <span id="failed-tests" class="text-4xl font-bold text-rose-400">0</span>
+          <span class="text-sm text-slate-500">เคส</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RUN ACTIONS -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-xl font-bold flex items-center gap-2">
+        <i data-lucide="shield-check" class="w-5 h-5 text-indigo-400"></i> ผลการทดสอบโมดูล OCR
+      </h2>
+      <button onclick="runVerificationSuite()" class="glass-btn px-6 py-2.5 bg-indigo-600/30 border-indigo-500/30 text-white font-medium hover:bg-indigo-600/40 hover:border-indigo-500/50 flex items-center gap-2">
+        <i data-lucide="play" class="w-4 h-4"></i> เริ่มทดสอบอีกครั้ง
+      </button>
+    </div>
+
+    <!-- TEST SUITE GRID -->
+    <div id="test-results-container" class="space-y-6">
+      <!-- Dynamically filled with test suites -->
+      <div class="text-center py-12 text-slate-400">
+        กำลังโหลดการทดสอบ...
+      </div>
+    </div>
+  </div>
+
+  <!-- LOAD THE MAIN SCRIPT FOR TESTING -->
+  <script src="app.js"></script>
+
+  <script>
+    // Verify functions from app.js are present
+    const testCases = [
+      {
+        suite: "1. Thai Unicode Normalization",
+        desc: "ตรวจสอบการล้างรหัส SARA AM (ํา รหัสประสม -> ำ รหัสมาตรฐาน) และ Zero-Width space artifacts",
+        run: () => {
+          const raw = "โอนเงินสําเร็จ\u200B (สระอำ U+0E34+U+0E4D)";
+          const result = normalizeThaiOcrText(raw);
+          const hasStandardSaraAm = result.includes("ำ");
+          const hasZeroWidth = result.includes("\u200B");
+          
+          return {
+            passed: hasStandardSaraAm && !hasZeroWidth,
+            details: `
+              <strong>Input Raw:</strong> "${raw}"<br>
+              <strong>Output Normalized:</strong> "${result}"<br>
+              <strong>Standard SARA AM:</strong> ${hasStandardSaraAm ? "✅ ตรวจพบ" : "❌ ไม่พบ"}<br>
+              <strong>Zero-width space:</strong> ${hasZeroWidth ? "❌ มีคงเหลือ" : "✅ ถูกกำจัดออก"}
+            `
+          };
+        }
+      },
+      {
+        suite: "2. Year Character Correction",
+        desc: "ตรวจสอบการแก้ไขปี พ.ศ. / ค.ศ. ที่สแกนตัวสะกดผิดเพี้ยนกลับเป็นตัวเลข",
+        run: () => {
+          const testInputs = ["256ง", "256ถ", "202O", "256B"];
+          const expected = ["2569", "2560", "2020", "2568"];
+          let passed = true;
+          let details = '<table class="w-full text-left border-collapse text-sm mt-2">';
+          details += '<thead><tr class="border-b border-white/10 text-slate-400"><th class="pb-2">Input</th><th class="pb-2">Output</th><th class="pb-2">Expected</th><th class="pb-2">Status</th></tr></thead><tbody>';
+          
+          for (let i = 0; i < testInputs.length; i++) {
+            const res = cleanOcrYearText(testInputs[i]);
+            const status = (res === expected[i]);
+            if (!status) passed = false;
+            details += `<tr class="border-b border-white/5"><td class="py-2 font-mono">${testInputs[i]}</td><td class="py-2 font-mono text-indigo-300">${res}</td><td class="py-2 font-mono">${expected[i]}</td><td class="py-2">${status ? "✅ Pass" : "❌ Fail"}</td></tr>`;
+          }
+          details += '</tbody></table>';
+          return { passed, details };
+        }
+      },
+      {
+        suite: "3. Amount Character Correction",
+        desc: "ตรวจสอบการแปลงยอดเงินที่มีสิ่งปะปน/ตัวอักษรเพี้ยน เช่น |39.O0, 1 , 239 -> 139.00, 1239.00",
+        run: () => {
+          const testInputs = ["|39.O0", "1 , 23O.5o", "S20.00", "85O.B0", "4,2O0.oo"];
+          const expected = ["139.00", "1230.50", "520.00", "850.80", "4200.00"];
+          let passed = true;
+          let details = '<table class="w-full text-left border-collapse text-sm mt-2">';
+          details += '<thead><tr class="border-b border-white/10 text-slate-400"><th class="pb-2">Input</th><th class="pb-2">Output</th><th class="pb-2">Expected</th><th class="pb-2">Status</th></tr></thead><tbody>';
+          
+          for (let i = 0; i < testInputs.length; i++) {
+            const res = cleanOcrAmountText(testInputs[i]);
+            const status = (res === expected[i]);
+            if (!status) passed = false;
+            details += `<tr class="border-b border-white/5"><td class="py-2 font-mono">${testInputs[i]}</td><td class="py-2 font-mono text-indigo-300">${res}</td><td class="py-2 font-mono">${expected[i]}</td><td class="py-2">${status ? "✅ Pass" : "❌ Fail"}</td></tr>`;
+          }
+          details += '</tbody></table>';
+          return { passed, details };
+        }
+      },
+      {
+        suite: "4. Fuzzy Month Detection",
+        desc: "ตรวจสอบการแมปเดือนภาษาไทยที่สะกดเพี้ยน (มื.ย., ก.พ, มิ.ยิ.) ไปยังลำดับหมายเลขเดือนที่ถูกต้อง",
+        run: () => {
+          const testInputs = ["มื.ย.", "ก.พ", "มิ.ยิ.", "ธ.ค."];
+          const expected = [6, 2, 6, 12];
+          let passed = true;
+          let details = '<table class="w-full text-left border-collapse text-sm mt-2">';
+          details += '<thead><tr class="border-b border-white/10 text-slate-400"><th class="pb-2">Input</th><th class="pb-2">Output (Month)</th><th class="pb-2">Expected</th><th class="pb-2">Status</th></tr></thead><tbody>';
+          
+          for (let i = 0; i < testInputs.length; i++) {
+            const res = getMonthNumber(testInputs[i]);
+            const status = (res === expected[i]);
+            if (!status) passed = false;
+            details += `<tr class="border-b border-white/5"><td class="py-2 font-mono">${testInputs[i]}</td><td class="py-2 font-mono text-indigo-300">${res}</td><td class="py-2 font-mono">${expected[i]}</td><td class="py-2">${status ? "✅ Pass" : "❌ Fail"}</td></tr>`;
+          }
+          details += '</tbody></table>';
+          return { passed, details };
+        }
+      },
+      {
+        suite: "5. Slip Date Extraction",
+        desc: "ตรวจสอบความสามารถในการสกัดและแปลงวันที่จากรูปสลิปที่มีตัวสะกดผิด",
+        run: () => {
+          const testInputs = [
+            "โอนเมื่อ 15 มื.ย. 256ง 18:30 น.",
+            "วันที่ทำรายการ 06/02/256ถ",
+            "Transaction Date: 2026-06-15"
+          ];
+          const expected = ["2026-06-15", "2023-02-06", "2026-06-15"];
+          let passed = true;
+          let details = '<table class="w-full text-left border-collapse text-sm mt-2">';
+          details += '<thead><tr class="border-b border-white/10 text-slate-400"><th class="pb-2">OCR Text Block</th><th class="pb-2">Extracted YYYY-MM-DD</th><th class="pb-2">Expected</th><th class="pb-2">Status</th></tr></thead><tbody>';
+          
+          for (let i = 0; i < testInputs.length; i++) {
+            const res = extractSlipDate(testInputs[i]);
+            const status = (res === expected[i]);
+            if (!status) passed = false;
+            details += `<tr class="border-b border-white/5"><td class="py-2 font-mono">${testInputs[i]}</td><td class="py-2 font-mono text-indigo-300">${res}</td><td class="py-2 font-mono">${expected[i]}</td><td class="py-2">${status ? "✅ Pass" : "❌ Fail"}</td></tr>`;
+          }
+          details += '</tbody></table>';
+          return { passed, details };
+        }
+      },
+      {
+        suite: "6. Slip Amount Extraction",
+        desc: "ตรวจสอบการสกัดค่าเงินสุทธิออกจากบริบทแวดล้อมที่มีคำสำคัญและยอดเงินสแกนผิด",
+        run: () => {
+          const testInputs = [
+            "ยอดเงินโอน\n|39.O0 บาท",
+            "จำนวนเงินที่ชำระ\n1,23O.5o THB",
+            "ยอดโอนสุทธิ S20 บาท"
+          ];
+          const expected = [139, 1230.5, 520];
+          let passed = true;
+          let details = '<table class="w-full text-left border-collapse text-sm mt-2">';
+          details += '<thead><tr class="border-b border-white/10 text-slate-400"><th class="pb-2">OCR Block</th><th class="pb-2">Parsed Float</th><th class="pb-2">Expected</th><th class="pb-2">Status</th></tr></thead><tbody>';
+          
+          for (let i = 0; i < testInputs.length; i++) {
+            const res = extractSlipAmount(testInputs[i]);
+            const status = (res === expected[i]);
+            if (!status) passed = false;
+            details += `<tr class="border-b border-white/5"><td class="py-2 font-mono whitespace-pre">${testInputs[i]}</td><td class="py-2 font-mono text-indigo-300">${res}</td><td class="py-2 font-mono">${expected[i]}</td><td class="py-2">${status ? "✅ Pass" : "❌ Fail"}</td></tr>`;
+          }
+          details += '</tbody></table>';
+          return { passed, details };
+        }
+      },
+      {
+        suite: "7. Fuzzy Template Anchor Matching",
+        desc: "ตรวจสอบการจับคู่ Anchor แบบ Levenshtein Distance (Similarity >= 70%) เมื่อสลิปมีคำสะกดเพี้ยน (โอนเงินสำเร็จ -> โอนเงินสําเร็จ)",
+        run: () => {
+          const anchorWord = "โอนเงินสำเร็จ";
+          const ocrInput = "โอนเงินสําเร็จ"; // Unicode mixed 
+          
+          const normalizedInput = normalizeThaiOcrText(ocrInput);
+          const sim = getSimilarity(normalizedInput, anchorWord);
+          const matched = sim >= 0.70;
+          
+          return {
+            passed: matched,
+            details: `
+              <strong>Anchor Word:</strong> "${anchorWord}"<br>
+              <strong>Raw OCR input:</strong> "${ocrInput}"<br>
+              <strong>Normalized OCR input:</strong> "${normalizedInput}"<br>
+              <strong>Edit Distance (Levenshtein):</strong> ${editDistance(normalizedInput, anchorWord)}<br>
+              <strong>Similarity index:</strong> ${(sim * 100).toFixed(2)}%<br>
+              <strong>Fuzzy Matches (>= 70%):</strong> ${matched ? "✅ ผ่านการตรวจสอบ" : "❌ ล้มเหลว"}
+            `
+          };
+        }
+      }
+    ];
+
+    function runVerificationSuite() {
+      const container = document.getElementById("test-results-container");
+      container.innerHTML = "";
+      
+      let passedCount = 0;
+      let failedCount = 0;
+
+      testCases.forEach((tc, idx) => {
+        let outcome;
+        try {
+          outcome = tc.run();
+        } catch (e) {
+          outcome = {
+            passed: false,
+            details: `<span class="text-rose-500 font-semibold">Error during execution:</span> ${e.message}`
+          };
+        }
+
+        if (outcome.passed) {
+          passedCount++;
+        } else {
+          failedCount++;
+        }
+
+        const suiteCard = document.createElement("div");
+        suiteCard.className = "glass-card p-6 flex flex-col md:flex-row justify-between gap-6";
+        suiteCard.innerHTML = `
+          <div class="flex-1">
+            <h3 class="text-lg font-bold flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full ${outcome.passed ? 'bg-emerald-500' : 'bg-rose-500'} inline-block"></span>
+              ${tc.suite}
+            </h3>
+            <p class="text-sm text-slate-400 mt-1">${tc.desc}</p>
+            <div class="mt-4 p-4 rounded bg-slate-950/40 border border-white/5 text-slate-300 font-sans text-sm leading-relaxed overflow-x-auto">
+              ${outcome.details}
+            </div>
+          </div>
+          <div class="flex items-start md:items-center justify-end">
+            <span class="px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider ${outcome.passed ? 'status-badge-success' : 'status-badge-failed'}">
+              ${outcome.passed ? 'Passed' : 'Failed'}
+            </span>
+          </div>
+        `;
+        container.appendChild(suiteCard);
+      });
+
+      // Update metrics
+      document.getElementById("total-tests").innerText = testCases.length;
+      document.getElementById("passed-tests").innerText = passedCount;
+      document.getElementById("failed-tests").innerText = failedCount;
+      
+      lucide.createIcons();
+    }
+
+    // Run automatically on page load
+    window.addEventListener("DOMContentLoaded", () => {
+      runVerificationSuite();
+    });
+  </script>
+</body>
+</html>

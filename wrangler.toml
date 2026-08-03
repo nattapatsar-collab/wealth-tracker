@@ -1,0 +1,12 @@
+# wrangler.toml
+# Cloudflare Pages Configuration
+
+name = "expense-dashboard"
+compatibility_date = "2024-01-01"
+
+# Bind D1 Database to the Pages Functions
+[[d1_databases]]
+binding = "DB"
+database_name = "expense_db"
+database_id = "YOUR_D1_DATABASE_ID" # Replace with your actual D1 Database ID from Cloudflare Dashboard
+# Note: You can create a database in Cloudflare CLI: wrangler d1 create expense_db

@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard รายได้ / รายรับ - ค่าใช้จ่าย | Premium Wealth Tracker</title>
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="style.css?v=1.7">
+
+  <!-- Mobile Responsive Custom CSS Overrides -->
+  <style>
+    @media (max-width: 768px) {
+
+      /* Correct shifted table card labels due to checkbox column */
+      td:nth-of-type(1)::before {
+        content: "เลือก" !important;
+      }
+
+      td:nth-of-type(2)::before {
+        content: "วันเวลาที่ทำรายการ" !important;
+      }
+
+      td:nth-of-type(3)::before {
+        content: "ประเภท" !important;
+      }
+
+      td:nth-of-type(4)::before {
+        content: "แพลตฟอร์ม" !important;
+      }
+
+      td:nth-of-type(5)::before {
+        content: "ยอดเงิน" !important;
+      }
+
+      td:nth-of-type(6)::before {
+        content: "หมวดหมู่" !important;
+      }
+
+      td:nth-of-type(7)::before {
+        content: "สถานที่ / ร้านค้า" !important;
+      }
+
+      td:nth-of-type(8)::before {
+        content: "หมายเหตุ" !important;
+      }
+
+      td:nth-of-type(9)::before {
+        content: "ดำเนินการ" !important;
+      }
+
+      /* Adjust checkbox container padding on mobile cards */
+      td:nth-of-type(1) {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+      }
+    }
+
+    @media (max-width: 680px) {
+
+      /* Allow time tabs selector to scroll horizontally on mobile instead of wrapping */
+      .time-range-selector {
+        display: block !important;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        padding: 8px !important;
+      }
+
+      .time-tabs {
+        display: inline-flex !important;
+        flex-wrap: nowrap;
+        min-width: max-content;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .app-container {
+        padding: 16px 12px;
+      }
+
+      .chart-title {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .chart-title .table-actions {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        gap: 8px;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .pagination {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .pagination-controls {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .pagination-controls button {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    /* Support mobile scrollable tall modals */
+    .modal-overlay {
+      overflow-y: auto;
+      align-items: flex-start;
+      padding: 20px 10px;
+    }
+
+    .modal-content {
+      margin: auto;
+    }
+
+    /* Slip Upload Container styling */
+    .slip-upload-panel {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--glass-border);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+    }
+    
+    .slip-upload-panel:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--color-primary);
+    }
+
+    .slip-upload-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .slip-status-text {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      width: 100%;
+      text-align: center;
+      margin-top: 4px;
+      line-height: 1.4;
+    }
+
+    .slip-status-text.success {
+      color: var(--color-income);
+    }
+
+    .slip-status-text.error {
+      color: var(--color-expense);
+    }
+    
+    /* Loading progress bar */
+    .slip-progress-bar-bg {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      display: none;
+    }
+    
+    .slip-progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+      transition: width 0.1s ease;
+    }
+
+    /* Monthly Budget Control Global Styles (PC & Mobile alignment) */
+    #dashboard-budget-card {
+      height: 580px !important;
+      gap: 12px !important; /* overrides inline 20px gap to shift layout up */
+    }
+    
+    #budget-sub-heading {
+      margin-top: 4px !important;
+      margin-bottom: 6px !important;
+      padding-bottom: 6px !important;
+    }
+    
+    .budget-tabs-container {
+      margin-bottom: 6px !important;
+    }
+    
+    .budget-summary-card {
+      padding: 10px 14px !important; /* slightly smaller padding to save vertical space */
+      margin-bottom: 0px !important;
+    }
+
+    #budget-breakdown-list {
+      flex: 1 !important;
+      min-height: 0 !important;
+      height: auto !important; /* overrides standard fixed height */
+      overflow-y: auto !important;
+    }
+
+    /* Lock layout card heights and force internal scrolling */
+    @media (min-width: 769px) {
+      .charts-container {
+        height: 580px !important;
+      }
+      
+      .chart-wrapper {
+        flex: 1 !important;
+        min-height: 200px !important;
+        max-height: 280px !important;
+        position: relative !important;
+      }
+      
+      #financial-rule-card,
+      #liabilities-card,
+      #savings-goal-card {
+        height: 420px !important;
+      }
+      
+      .glass-panel {
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      
+      /* Make DSR panel a flex container filling the Liabilities card */
+      #dsr-display-panel {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+      }
+      
+      /* Let debts container fill the remaining space in DSR panel */
+      #debts-list-container {
+        flex: 1 !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow-y: auto !important;
+      }
+      
+      /* Let savings container fill the remaining space in Savings Goal card and scroll */
+      #savings-display-panel {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 !important;
+        min-height: 0 !important;
+        overflow-y: auto !important;
+      }
+    }
+  </style>
+
+
+  <!-- Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Tesseract.js Client-Side OCR CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- SheetJS (xlsx) for Client-Side Excel Import/Export CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- HEADER -->
+    <header>
+      <div class="logo-section">
+        <h1>
+          <i data-lucide="wallet" style="stroke-width: 2;"></i>
+          Wealth Tracker
+        </h1>
+        <p>ระบบบันทึกและวิเคราะห์รายได้ / รายรับ และค่าใช้จ่ายประจำวัน</p>
+      </div>
+
+      <div class="header-controls">
+        <div id="mode-badge" class="type-tag income" style="font-size: 0.75rem; border: 1px solid var(--glass-border);">
+          <i data-lucide="database" size="14"></i>
+          <span id="mode-text">LocalStorage Mode</span>
+        </div>
+        <a href="ocr-sandbox.html" class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px; display: flex; align-items: center; gap: 6px; border-radius: 10px; border: 1px solid var(--glass-border); text-decoration: none; color: var(--text-primary); cursor: pointer; background: rgba(255, 255, 255, 0.05);">
+          <i data-lucide="cpu" style="width: 14px; height: 14px;"></i>
+          <span>ห้องสอน AI OCR</span>
+        </a>
+        <button id="btn-toggle-theme" class="btn-icon-only" title="เปลี่ยนธีม (มืด/สว่าง)">
+          <i data-lucide="sun"></i>
+        </button>
+        <button id="btn-new-transaction" class="btn btn-primary">
+          <i data-lucide="plus"></i>
+          บันทึกรายการใหม่
+        </button>
+      </div>
+    </header>
+
+
+
+    <!-- STATUS BANNER -->
+    <div id="status-banner" class="status-banner success" style="display: none;">
+      <i id="status-icon" data-lucide="info"></i>
+      <span id="status-text">บันทึกสำเร็จ</span>
+    </div>
+
+    <!-- TIME RANGE SELECTOR -->
+    <div class="glass-panel time-range-selector"
+      style="margin-bottom: 24px; padding: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+      <div class="desktop-only-spacer" style="width: 145px;"></div>
+      <div class="time-tabs">
+        <button class="time-tab-btn" data-range="today">วันนี้</button>
+        <button class="time-tab-btn" data-range="week">อาทิตย์นี้</button>
+        <button class="time-tab-btn active" data-range="month">เดือนนี้</button>
+        <button class="time-tab-btn" data-range="3months">3 เดือน</button>
+        <button class="time-tab-btn" data-range="6months">6 เดือน</button>
+        <button class="time-tab-btn" data-range="1year">1 ปี</button>
+        <button class="time-tab-btn" data-range="all">ทั้งหมด</button>
+      </div>
+      <button id="btn-copy-line-summary" class="btn btn-secondary" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; display: flex; align-items: center; gap: 6px;">
+        <i data-lucide="copy"></i> สรุปส่งไลน์
+      </button>
+    </div>
+
+    <!-- MAIN KPI METRIC CARDS -->
+    <section class="kpi-grid">
+      <div class="glass-panel kpi-card income">
+        <div class="kpi-header">
+          <span>รายได้ / รายรับทั้งหมด</span>
+          <div class="kpi-icon"><i data-lucide="arrow-up-right"></i></div>
+        </div>
+        <div id="kpi-total-income" class="kpi-value">฿ 0.00</div>
+        <div class="kpi-trend" id="kpi-income-sub">0 รายการ</div>
+      </div>
+
+      <div class="glass-panel kpi-card expense">
+        <div class="kpi-header">
+          <span>ค่าใช้จ่ายทั้งหมด</span>
+          <div class="kpi-icon"><i data-lucide="arrow-down-left"></i></div>
+        </div>
+        <div id="kpi-total-expense" class="kpi-value">฿ 0.00</div>
+        <div class="kpi-trend" id="kpi-expense-sub">0 รายการ</div>
+      </div>
+
+      <div class="glass-panel kpi-card balance">
+        <div class="kpi-header">
+          <span>ยอดรวมสุทธิ</span>
+          <div class="kpi-icon"><i data-lucide="trending-up"></i></div>
+        </div>
+        <div id="kpi-net-balance" class="kpi-value">฿ 0.00</div>
+        <div class="kpi-trend" id="kpi-balance-sub">คิดเป็น 0% ของรายได้ / รายรับ</div>
+      </div>
+
+      <div class="glass-panel kpi-card savings">
+        <div class="kpi-header">
+          <span>อัตราการออม</span>
+          <div class="kpi-icon"><i data-lucide="percent"></i></div>
+        </div>
+        <div id="kpi-savings-rate" class="kpi-value">0.0%</div>
+        <div class="kpi-trend" id="kpi-savings-sub">ค่าใช้จ่ายคงที่ (Fixed Cost): ฿0.00</div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD CHARTS & BREAKDOWN GRID -->
+    <main class="dashboard-grid">
+
+      <!-- Left Column: Trend Analysis charts & Sub-cards -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <section class="glass-panel charts-container">
+          <div class="chart-title" style="margin-bottom: 8px;">
+            <span>การเปรียบเทียบ รายได้ / รายรับ - ค่าใช้จ่าย</span>
+          </div>
+          <!-- MoM Trend Summary -->
+          <div id="chart-trend-summary"
+            style="margin-bottom: 16px; font-size: 0.85rem; display: flex; flex-direction: column; gap: 12px; width: 100%;">
+            <div class="trend-selector-bar"
+              style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 4px;">
+              <span
+                style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">เปรียบเทียบผลลัพธ์ของเดือน:</span>
+              <select id="trend-primary-month" class="filter-select"
+                style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-primary); font-family: inherit; font-weight: 600; min-width: auto;"></select>
+              <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;">กับเดือน:</span>
+              <select id="trend-reference-month" class="filter-select"
+                style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; cursor: pointer; border: 1px solid var(--glass-border); background: var(--glass-bg); color: var(--text-primary); font-family: inherit; font-weight: 600; min-width: auto;"></select>
+            </div>
+            <div id="trend-cards-container" style="display: flex; gap: 16px; flex-wrap: wrap; width: 100%;"></div>
+          </div>
+
+          <div class="chart-wrapper">
+            <canvas id="monthlyChart"></canvas>
+          </div>
+        </section>
+
+        <!-- Sub-cards Grid (50/30/20 & Savings Goal) -->
+        <div class="sub-cards-grid">
+          <!-- 50/30/20 Rule Analysis -->
+          <section class="glass-panel" id="financial-rule-card"
+            style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="chart-title" style="margin-bottom: 0;">
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="line-chart" style="color: var(--color-primary);"></i>
+                วิเคราะห์ตามกฎ 50/30/20 (Ideal Budgeting)
+              </span>
+            </div>
+
+            <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: -8px;">
+              สัดส่วนการจัดสรรเงินที่เหมาะสมจากรายได้ / รายรับของเดือนปัจจุบัน
+            </p>
+
+            <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 4px;">
+              <!-- Needs Rule -->
+              <div class="rule-row" data-rule="Needs"
+                style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
+                  <span style="font-weight: 600; color: var(--text-primary);">Needs (จำเป็น) <span
+                      style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
+                      50%</span></span>
+                  <strong id="rule-needs-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
+                </div>
+                <div class="breakdown-bar-bg" style="height: 8px;">
+                  <div id="rule-needs-fill" class="breakdown-bar-fill"
+                    style="width: 0%; background: var(--color-primary); height: 100%;"></div>
+                </div>
+              </div>
+
+              <!-- Wants Rule -->
+              <div class="rule-row" data-rule="Wants"
+                style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
+                  <span style="font-weight: 600; color: var(--text-primary);">Wants (ไลฟ์สไตล์) <span
+                      style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
+                      30%</span></span>
+                  <strong id="rule-wants-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
+                </div>
+                <div class="breakdown-bar-bg" style="height: 8px;">
+                  <div id="rule-wants-fill" class="breakdown-bar-fill"
+                    style="width: 0%; background: #f59e0b; height: 100%;"></div>
+                </div>
+              </div>
+
+              <!-- Savings Rule -->
+              <div class="rule-row" data-rule="Savings"
+                style="display: flex; flex-direction: column; gap: 4px; cursor: pointer; padding: 6px; border-radius: 8px; transition: all 0.2s;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; align-items: baseline;">
+                  <span style="font-weight: 600; color: var(--text-primary);">Savings (เงินออม) <span
+                      style="font-size: 0.7rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">เป้า
+                      20%</span></span>
+                  <strong id="rule-savings-text" style="color: var(--text-primary);">0% (฿0.00)</strong>
+                </div>
+                <div class="breakdown-bar-bg" style="height: 8px;">
+                  <div id="rule-savings-fill" class="breakdown-bar-fill"
+                    style="width: 0%; background: var(--color-income); height: 100%;"></div>
+                </div>
+              </div>
+            </div>
+
+            <div id="rule-advice-box"
+              style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 8px; padding: 10px 12px; font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4;">
+              คำแนะนำทางการเงินตามพฤติกรรมการใช้จ่าย
+            </div>
+          </section>
+
+          <!-- Savings Goal Planner -->
+          <section class="glass-panel" id="savings-goal-card" style="display: flex; flex-direction: column; gap: 16px;">
+            <div class="chart-title"
+              style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+              <span style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="target" style="color: var(--color-secondary);"></i>
+                แผนการออมเงิน (Savings Goal)
+              </span>
+              <button id="btn-toggle-savings-settings" class="action-btn" title="เพิ่มเป้าหมายการออม"
+                style="padding: 4px; border-radius: 50%;">
+                <i data-lucide="plus" size="18"></i>
+              </button>
+            </div>
+
+            <!-- Savings Goal Settings Form -->
+            <div id="savings-settings-panel"
+              style="display: none; background: rgba(255, 255, 255, 0.02); border: 1px dashed var(--glass-border); border-radius: 12px; padding: 16px;">
+              <h4 style="font-size: 0.9rem; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">
+                เพิ่มเป้าหมายการออมเงินใหม่</h4>
+              <form id="savings-settings-form" onsubmit="return false;"
+                style="display: flex; flex-direction: column; gap: 10px;">
+                <div>
+                  <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">ชื่อเป้าหมาย</label>
+                  <input type="text" id="input-savings-name" class="form-input"
+                    style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;"
+                    placeholder="เช่น ซื้อคอมพิวเตอร์, ท่องเที่ยว" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div>
+                    <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">เป้าหมาย (บาท)</label>
+                    <input type="number" id="input-savings-target" class="form-input"
+                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" step="1" required>
+                  </div>
+                  <div>
+                    <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">เงินออมเริ่มต้น
+                      (บาท)</label>
+                    <input type="number" id="input-savings-current" class="form-input"
+                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" step="1" required>
+                  </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <div>
+                    <label class="form-label"
+                      style="font-size: 0.75rem; margin-bottom: 4px;">เป้าหมายเมื่อเดือน/ปี</label>
+                    <input type="month" id="input-savings-date" class="form-input"
+                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" required>
+                  </div>
+                  <div>
+                    <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">ส่วนแบ่งเงินออม (%)</label>
+                    <input type="number" id="input-savings-allocation" class="form-input"
+                      style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" min="1" max="100" step="1"
+                      required>
+                  </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+                  <button type="button" id="btn-cancel-savings" class="btn btn-secondary"
+                    style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">ยกเลิก</button>
+                  <button type="submit" id="btn-save-savings" class="btn btn-primary"
+                    style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px;">บันทึก</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Savings Goals Container -->
+            <div id="savings-display-panel" style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- Dynamic list of savings goals populated by JS -->
+            </div>
+          </section>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Budget control -->
+      <div style="display: flex; flex-direction: column; gap: 24px;">
+
+        <!-- Budget control and Category breakdown -->
+        <section class="glass-panel" id="dashboard-budget-card" style="display: flex; flex-direction: column; gap: 20px;">
+          <div class="chart-title"
+            style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span style="display: flex; align-items: center; gap: 8px;">
+              <i data-lucide="piggy-bank"></i>
+              การควบคุมงบประมาณรายเดือน
+            </span>
+            <button id="btn-toggle-budget-settings" class="action-btn" title="แก้ไขงบประมาณ"
+              style="padding: 4px; border-radius: 50%;">
+              <i data-lucide="settings" size="18"></i>
+            </button>
+          </div>
+
+          <!-- Total Budget Card -->
+          <div class="budget-summary-card"
+            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px;">
+            <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 8px;">
+              <span style="color: var(--text-secondary);">งบประมาณรวมทั้งหมด</span>
+              <strong id="budget-total-text">฿0.00 / ฿8,010.00</strong>
+            </div>
+            <div class="breakdown-bar-bg" style="height: 12px; margin-bottom: 8px;">
+              <div id="budget-total-fill" class="breakdown-bar-fill"
+                style="width: 0%; background: var(--color-primary); height: 100%;"></div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem;">
+              <span id="budget-total-status" style="color: var(--text-muted);">คงเหลือ ฿8,010.00</span>
+              <span id="budget-total-percent" style="font-weight: 600;">0%</span>
+            </div>
+            <div id="budget-total-projection"
+              style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--glass-border); font-size: 0.8rem; color: var(--text-secondary); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px;">
+              <span>ประมาณการยอดจ่ายสิ้นสุดช่วงเวลา:</span>
+              <strong id="budget-projection-value" style="color: var(--text-primary);">฿0.00</strong>
+            </div>
+            <div id="budget-risk-analysis"
+              style="margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-size: 0.8rem; border: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 4px; background: rgba(0, 0, 0, 0.2);">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="color: var(--text-secondary); font-weight: 500;">ระดับความเสี่ยงการเกินงบ:</span>
+                <strong id="budget-risk-level-badge" class="type-badge" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 12px;">วิเคราะห์ข้อมูล...</strong>
+              </div>
+              <div id="budget-risk-desc" style="color: var(--text-muted); font-size: 0.75rem; line-height: 1.4; margin-top: 4px;">
+                ระบบกำลังคาดการณ์และประเมินพฤติกรรมการใช้จ่ายของคุณ...
+              </div>
+            </div>
+          </div>
+
+          <div id="budget-sub-heading"
+            style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); margin-top: 10px; border-bottom: 1px solid var(--glass-border); padding-bottom: 8px; margin-bottom: 12px;">
+            ควบคุมงบประมาณรายหมวดหมู่
+          </div>
+
+          <!-- Budget Category Tabs -->
+          <div class="budget-tabs-container" style="margin-bottom: 12px;">
+            <div class="budget-tabs" style="display: flex; gap: 4px; background: rgba(0, 0, 0, 0.15); padding: 3px; border-radius: 8px; font-size: 0.75rem; border: 1px solid var(--glass-border);">
+              <button class="budget-tab-btn active" data-tab="active" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">ที่ใช้งานอยู่</button>
+              <button class="budget-tab-btn" data-tab="all" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">ทั้งหมด</button>
+              <button class="budget-tab-btn" data-tab="needs" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">Needs</button>
+              <button class="budget-tab-btn" data-tab="wants" style="flex: 1; padding: 6px 4px; border-radius: 6px; border: none; background: transparent; color: var(--text-secondary); font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; font-size: 0.72rem; outline: none;">Wants</button>
+            </div>
+          </div>
+
+          <div id="budget-breakdown-list" class="breakdown-list" style="margin-top: 0;">
+            <!-- Dynamic budget category items rendered by JS -->
+            <div class="empty-state">
+              <i data-lucide="pie-chart" size="32"></i>
+              <p>ไม่พบประวัติรายการในระบบ</p>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+
+    <!-- TRANSACTIONS ENGINE AND FILTER -->
+    <section class="glass-panel transactions-section">
+      <div class="chart-title" style="margin-bottom: 20px;">
+        <span style="display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="list"></i>
+          รายการธุรกรรมทั้งหมด
+        </span>
+        <div class="table-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <button id="btn-bulk-delete" class="btn btn-danger"
+            style="padding: 6px 12px; font-size: 0.85rem; display: none;">
+            <i data-lucide="trash-2" size="14"></i>
+            ลบรายการที่เลือก (<span id="bulk-delete-count">0</span>)
+          </button>
+          <button id="btn-download-template" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" title="ดาวน์โหลดไฟล์แม่แบบ Excel สำหรับเตรียมหรือแก้ไขข้อมูล">
+            <i data-lucide="file-spreadsheet" size="14"></i>
+            ดาวน์โหลด Template
+          </button>
+          <button id="btn-import-excel" class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem; background: var(--color-primary);" title="นำเข้าข้อมูลหรือแก้ไขหลายรายการจากไฟล์ Excel/CSV">
+            <i data-lucide="file-up" size="14"></i>
+            นำเข้า Excel / CSV
+          </button>
+          <button id="btn-export-csv" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;">
+            <i data-lucide="download" size="14"></i>
+            ส่งออก CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- FILTER CONTROLS -->
+      <div class="filters-bar">
+        <div class="search-input-wrapper">
+          <i data-lucide="search" size="18"></i>
+          <input type="text" id="filter-search" class="search-input"
+            placeholder="ค้นหาตามร้านค้า, หมวดหมู่, หมายเหตุ...">
+        </div>
+
+        <select id="filter-type" class="filter-select">
+          <option value="">ทุกประเภทธุรกรรม</option>
+          <option value="Income">รายได้ / รายรับ (Income)</option>
+          <option value="Expense">ค่าใช้จ่าย (Expenses)</option>
+        </select>
+
+        <select id="filter-category" class="filter-select">
+          <option value="">หมวดหมู่ทั้งหมด</option>
+          <!-- Dynamic Category Options loaded by JS -->
+        </select>
+
+        <select id="filter-platform" class="filter-select">
+          <option value="">ทุกแพลตฟอร์ม</option>
+          <!-- Dynamic Platform Options loaded by JS -->
+        </select>
+
+        <select id="filter-sort" class="filter-select" title="เรียงลำดับข้อมูล">
+          <option value="newest">วันเวลาที่ทำรายการ: ใหม่ล่าสุด</option>
+          <option value="oldest">วันเวลาที่ทำรายการ: เก่าสุด</option>
+          <option value="amount-desc">ยอดเงิน: มาก-น้อย</option>
+          <option value="amount-asc">ยอดเงิน: น้อย-มาก</option>
+        </select>
+
+        <div class="date-inputs">
+          <input type="date" id="filter-start-date" class="date-input" title="เริ่มวันเวลาที่ทำรายการ">
+          <span style="color: var(--text-secondary); font-size: 0.9rem;">ถึง</span>
+          <input type="date" id="filter-end-date" class="date-input" title="ถึงวันเวลาที่ทำรายการ">
+        </div>
+
+        <button id="btn-reset-filters" class="btn btn-secondary" title="ล้างตัวกรองทั้งหมด"
+          style="display: flex; align-items: center; gap: 6px; padding: 10px 16px;">
+          <i data-lucide="x" size="16"></i>
+          <span>ล้างตัวกรอง</span>
+        </button>
+      </div>
+
+      <!-- TRANSACTIONS DATA TABLE -->
+      <div class="table-container">
+        <table id="transactions-table">
+          <thead>
+            <tr>
+              <th style="width: 40px; text-align: center;"><input type="checkbox" id="check-all"
+                  style="cursor: pointer; transform: scale(1.1);"></th>
+              <th>วันเวลาที่ทำรายการ</th>
+              <th>ประเภท</th>
+              <th>แพลตฟอร์ม</th>
+              <th>ยอดเงิน (บาท)</th>
+              <th>หมวดหมู่</th>
+              <th>สถานที่ / ผู้รับเงิน</th>
+              <th>หมายเหตุ</th>
+              <th style="width: 100px; text-align: center;">ดำเนินการ</th>
+            </tr>
+          </thead>
+          <tbody id="transactions-body">
+            <!-- Loaded dynamically by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PAGINATION BAR -->
+      <div class="pagination">
+        <div id="pagination-info">แสดงรายการ 0 - 0 จากทั้งหมด 0 รายการ</div>
+        <div class="pagination-controls">
+          <button id="btn-prev-page" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" disabled>
+            <i data-lucide="chevron-left" size="16"></i>
+            ก่อนหน้า
+          </button>
+          <button id="btn-next-page" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.85rem;" disabled>
+            ถัดไป
+            <i data-lucide="chevron-right" size="16"></i>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <footer
+      style="margin-top: 48px; text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 24px 0; border-top: 1px solid var(--glass-border);">
+      Wealth Tracker v1.0.0 © 2026. จัดเก็บข้อมูลบน Cloudflare D1 SQL Database.
+    </footer>
+
+  </div>
+
+  <!-- TRANSACTION MODAL FORM (ADD / EDIT) -->
+  <div id="txn-modal" class="modal-overlay" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+    <div class="modal-content glass-panel"
+      style="max-width: 540px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);">
+      <div class="modal-header"
+        style="border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 20px;">
+        <h3 id="modal-title" class="modal-title"
+          style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="plus-circle" style="color: var(--color-primary);"></i>
+          บันทึกรายการใหม่
+        </h3>
+        <button id="btn-close-modal" class="action-btn"
+          style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);"><i
+            data-lucide="x" size="18"></i></button>
+      </div>
+
+      <form id="txn-form" onsubmit="return false;">
+        <input type="hidden" id="form-id">
+
+        <!-- Slip OCR Upload Panel -->
+        <div class="slip-upload-panel" id="slip-upload-container">
+          <div class="slip-upload-title">
+            <i data-lucide="scan" style="color: var(--color-primary); width: 16px; height: 16px;"></i>
+            <span>สแกนสลิปโอนเงินอัตโนมัติ (Slip OCR)</span>
+          </div>
+          <input type="file" id="input-slip-file" accept="image/*" style="display: none;">
+          <button type="button" id="btn-trigger-slip-upload" class="btn btn-secondary" style="width: 100%; border-radius: 10px; padding: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(255,255,255,0.05); font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+            <i data-lucide="upload-cloud"></i>
+            <span>อัปโหลดรูปภาพสลิป (รองรับ MAKE)</span>
+          </button>
+          <div class="slip-progress-bar-bg" id="slip-progress-bar-container">
+            <div class="slip-progress-bar-fill" id="slip-progress-bar-fill"></div>
+          </div>
+          <div class="slip-status-text" id="slip-upload-status" style="display: none;"></div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; margin-top: 8px;">
+            <button type="button" id="btn-manage-ocr-dictionary" class="btn btn-secondary" style="font-size: 0.78rem; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; padding: 6px 10px; cursor: pointer; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border);">
+              <i data-lucide="book-open" size="13"></i>
+              <span>จัดการคลังคำสะกด</span>
+            </button>
+            <a href="ocr-sandbox.html" class="btn btn-secondary" style="font-size: 0.78rem; display: flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; padding: 6px 10px; cursor: pointer; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); text-decoration: none; color: var(--text-primary);">
+              <i data-lucide="cpu" size="13"></i>
+              <span>เข้าห้องสอน AI OCR</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Tab Switch Expense/Income -->
+        <div class="form-group-full" style="margin-bottom: 20px;">
+          <label class="form-label"
+            style="font-weight: 600; font-size: 0.8rem; margin-bottom: 6px;">ประเภทธุรกรรม</label>
+          <div class="form-switch"
+            style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); border-radius: 12px; padding: 4px; display: flex; gap: 4px;">
+            <button type="button" id="form-switch-expense" class="form-switch-btn active expense"
+              style="flex: 1; padding: 10px; font-size: 0.85rem; font-weight: 600; border-radius: 8px;">ค่าใช้จ่าย
+              (Expenses)</button>
+            <button type="button" id="form-switch-income" class="form-switch-btn income"
+              style="flex: 1; padding: 10px; font-size: 0.85rem; font-weight: 600; border-radius: 8px;">รายได้ / รายรับ
+              (Income)</button>
+          </div>
+          <input type="hidden" id="form-type" value="Expense">
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 16px;">
+          <div>
+            <label class="form-label" for="form-date"
+              style="font-weight: 600; font-size: 0.8rem;">วันเวลาที่ทำรายการ</label>
+            <input type="date" id="form-date" class="form-input" style="border-radius: 10px; padding: 10px 12px;"
+              required>
+          </div>
+          <div>
+            <label class="form-label" for="form-total" style="font-weight: 600; font-size: 0.8rem;">ยอดเงิน
+              (บาท)</label>
+            <input type="number" id="form-total" class="form-input" style="border-radius: 10px; padding: 10px 12px;"
+              step="0.01" min="0.01" placeholder="0.00" required>
+          </div>
+        </div>
+
+        <!-- Expense Subtype Section (Only visible when Expense is chosen) -->
+        <div id="form-expense-type-group" class="form-group-full" style="margin-bottom: 16px;">
+          <label class="form-label" style="font-weight: 600; font-size: 0.8rem;">ลักษณะค่าใช้จ่าย</label>
+          <div class="form-switch"
+            style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); border-radius: 10px; padding: 4px; display: flex; gap: 4px;">
+            <button type="button" id="form-switch-subtype-direct" class="form-switch-btn active"
+              style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 600; border-radius: 8px;">จ่ายทั่วไป /
+              ผันแปร</button>
+            <button type="button" id="form-switch-subtype-debt" class="form-switch-btn"
+              style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 600; border-radius: 8px;">ชำระหนี้สิน
+              (Debt)</button>
+          </div>
+          <input type="hidden" id="form-expense-subtype" value="direct">
+        </div>
+
+        <!-- Debt Selector (Only visible when subtype-debt is active) -->
+        <div id="form-debt-select-group" class="form-group-full" style="margin-bottom: 16px; display: none;">
+          <label class="form-label" for="form-link-debt"
+            style="font-weight: 600; font-size: 0.8rem;">ผูกรายการหนี้สินเพื่อตัดยอด</label>
+          <select id="form-link-debt" class="form-input"
+            style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-primary); font-family: inherit; font-size: 0.85rem; outline: none; cursor: pointer; width: 100%;">
+            <!-- Populated dynamically by JS -->
+          </select>
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 16px;">
+          <div class="autocomplete-wrapper">
+            <label class="form-label" for="form-platform" style="font-weight: 600; font-size: 0.8rem;">บัญชี / แพลตฟอร์ม</label>
+            <div style="position: relative;">
+              <input type="text" id="form-platform" class="form-input" style="border-radius: 10px; padding: 10px 32px 10px 12px;"
+                placeholder="เลือกหรือพิมพ์ เช่น Make, TTB, K-Plus" required autocomplete="off">
+              <i data-lucide="chevron-down" class="input-dropdown-arrow"></i>
+            </div>
+            <div id="suggestions-platform" class="suggestions-list"></div>
+          </div>
+          <div class="autocomplete-wrapper">
+            <label class="form-label" for="form-category" style="font-weight: 600; font-size: 0.8rem;">หมวดหมู่</label>
+            <div style="position: relative;">
+              <input type="text" id="form-category" class="form-input" style="border-radius: 10px; padding: 10px 32px 10px 12px;"
+                placeholder="เลือกหรือพิมพ์ เช่น ค่าอาหาร, ค่าเดินทาง" required autocomplete="off">
+              <i data-lucide="chevron-down" class="input-dropdown-arrow"></i>
+            </div>
+            <div id="suggestions-category" class="suggestions-list"></div>
+          </div>
+        </div>
+
+        <div class="form-grid" style="margin-bottom: 24px;">
+          <div class="autocomplete-wrapper">
+            <label class="form-label" for="form-location" style="font-weight: 600; font-size: 0.8rem;">สถานที่ / ร้านค้า</label>
+            <div style="position: relative;">
+              <input type="text" id="form-location" class="form-input" style="border-radius: 10px; padding: 10px 32px 10px 12px;"
+                placeholder="เลือกหรือพิมพ์ เช่น 7-11, Grab (ไม่บังคับ)" autocomplete="off">
+              <i data-lucide="chevron-down" class="input-dropdown-arrow"></i>
+            </div>
+            <div id="suggestions-location" class="suggestions-list"></div>
+          </div>
+          <div>
+            <label class="form-label" for="form-remark" style="font-weight: 600; font-size: 0.8rem;">หมายเหตุ</label>
+            <input type="text" id="form-remark" class="form-input" style="border-radius: 10px; padding: 10px 12px;"
+              placeholder="เช่น BKK Trip, ของขวัญ (ไม่บังคับ)">
+          </div>
+        </div>
+
+        <div class="form-actions"
+          style="border-top: 1px solid var(--glass-border); padding-top: 16px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" id="btn-cancel-form" class="btn btn-secondary"
+            style="border-radius: 10px; padding: 8px 20px;">ยกเลิก</button>
+          <button type="submit" id="btn-submit-form" class="btn btn-primary"
+            style="border-radius: 10px; padding: 8px 20px;">บันทึกรายการ</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- BUDGET SETTINGS MODAL FORM -->
+  <div id="budget-modal" class="modal-overlay" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+    <div class="modal-content glass-panel" style="max-width: 640px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 20px;">
+        <h3 class="modal-title" style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="settings" style="color: var(--color-primary);"></i>
+          ตั้งค่างบประมาณประจำเดือน
+        </h3>
+        <button id="btn-close-budget-modal" class="action-btn" style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">
+          <i data-lucide="x" size="18"></i>
+        </button>
+      </div>
+
+      <form id="budget-settings-form" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 12px;">
+        <!-- Dynamic Categories List Editor -->
+        <div style="max-height: 400px; overflow-y: auto; padding-right: 4px; display: flex; flex-direction: column; gap: 10px;" id="budget-categories-editor-list">
+          <!-- Dynamically populated rows by JS -->
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; border-top: 1px solid var(--glass-border); padding-top: 12px;">
+          <button type="button" id="btn-add-budget-row" class="btn btn-secondary" style="padding: 6px 12px; font-size: 0.8rem; border-radius: 8px; display: flex; align-items: center; gap: 4px;">
+            <i data-lucide="plus" size="14"></i>
+            <span>เพิ่มหมวดหมู่</span>
+          </button>
+          <div style="text-align: right;">
+            <span style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">งบประมาณรวม: </span>
+            <strong id="label-calc-total-budget" style="font-size: 0.95rem; color: var(--text-primary);">฿0.00</strong>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px;">
+          <button type="button" id="btn-cancel-budget" class="btn btn-secondary" style="border-radius: 10px; padding: 8px 20px;">ยกเลิก</button>
+          <button type="submit" id="btn-save-budget" class="btn btn-primary" style="border-radius: 10px; padding: 8px 20px;">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- OCR DICTIONARY MODAL -->
+  <div id="ocr-dictionary-modal" class="modal-overlay" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+    <div class="modal-content glass-panel" style="max-width: 600px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 20px;">
+        <h3 class="modal-title" style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="book-open" style="color: var(--color-primary);"></i>
+          คลังเรียนรู้และคำสะกดผิด OCR
+        </h3>
+        <button id="btn-close-ocr-modal" class="action-btn" style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05);">
+          <i data-lucide="x" size="18"></i>
+        </button>
+      </div>
+
+      <!-- Quick Add Form -->
+      <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+          <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary); margin: 0;">สอนความจำใหม่</h4>
+          <button type="button" id="btn-load-ocr-presets" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem; border-radius: 6px; display: flex; align-items: center; gap: 4px; height: auto; cursor: pointer; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);">
+            <i data-lucide="download" style="width: 12px; height: 12px;"></i>
+            <span>โหลดคลังคำยอดนิยม</span>
+          </button>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">ชนิดการสอน</label>
+            <select id="dict-add-type" class="form-input" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px; background: var(--bg-gradient-start); color: var(--text-primary); border: 1px solid var(--glass-border);">
+              <option value="merchant">จับคู่ชื่อร้าน (OCR -> คำที่ถูก)</option>
+              <option value="category">กำหนดหมวดหมู่ (ชื่อร้าน/โน้ต -> หมวดหมู่)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">คำสแกนได้ / คีย์เวิร์ด</label>
+            <input type="text" id="dict-add-key" class="form-input" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" placeholder="เช่น 7-elevev">
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: flex-end;">
+          <div id="dict-val-container" style="width: 100%;">
+            <label class="form-label" style="font-size: 0.75rem; margin-bottom: 4px;">คำที่ถูกต้อง</label>
+            <input type="text" id="dict-add-val-text" class="form-input" style="padding: 6px 10px; font-size: 0.8rem; border-radius: 8px;" placeholder="เช่น 7-Eleven">
+          </div>
+          <button type="button" id="btn-dict-add-save" class="btn btn-primary" style="border-radius: 8px; padding: 8px 16px; font-size: 0.8rem;">เพิ่มการสอน</button>
+        </div>
+      </div>
+
+      <!-- Lists -->
+      <div style="display: flex; flex-direction: column; gap: 16px; max-height: 250px; overflow-y: auto; padding-right: 4px;">
+        <div>
+          <h4 style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">จับคู่คำสะกดผิดที่จำได้</h4>
+          <div id="dict-list-merchants" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+        
+        <div style="border-top: 1px dashed var(--glass-border); padding-top: 12px;">
+          <h4 style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">จับคู่หมวดหมู่ที่จำได้</h4>
+          <div id="dict-list-categories" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINE SUMMARY MODAL -->
+  <div id="line-summary-modal" class="modal-overlay" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+    <div class="modal-content glass-panel" style="max-width: 500px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 20px;">
+        <h3 class="modal-title" style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="copy" style="color: #34d399;"></i>
+          สรุปส่งไลน์
+        </h3>
+        <button id="btn-close-line-modal" class="action-btn" style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: none; cursor: pointer; color: var(--text-primary);">
+          <i data-lucide="x" size="18"></i>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Option Selector (Segmented Tabs) -->
+        <div>
+          <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">เลือกประเภทข้อมูลที่จะสรุป</label>
+          <div class="form-switch" style="background: rgba(0, 0, 0, 0.2); border: 1px solid var(--glass-border); border-radius: 10px; padding: 4px; display: flex; gap: 4px;">
+            <button type="button" id="summary-tab-expense" class="form-switch-btn active" style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; background: transparent; color: var(--text-secondary);">รายจ่าย</button>
+            <button type="button" id="summary-tab-income" class="form-switch-btn" style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; background: transparent; color: var(--text-secondary);">รายรับ</button>
+            <button type="button" id="summary-tab-both" class="form-switch-btn" style="flex: 1; padding: 8px; font-size: 0.8rem; font-weight: 600; border-radius: 8px; border: none; cursor: pointer; background: transparent; color: var(--text-secondary);">ทั้งคู่</button>
+          </div>
+        </div>
+
+        <!-- Preview Text Area -->
+        <div>
+          <label class="form-label" style="font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px; display: block;">ตัวอย่างข้อความที่คัดลอก (สามารถแก้ไขเพิ่มเติมได้)</label>
+          <textarea id="line-summary-preview" class="form-input" style="width: 100%; height: 220px; font-family: monospace, sans-serif; font-size: 0.9rem; line-height: 1.5; padding: 12px; border-radius: 12px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.25); color: var(--text-primary); resize: none; outline: none;"></textarea>
+        </div>
+
+        <!-- Action buttons -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--glass-border); padding-top: 16px;">
+          <button type="button" id="btn-copy-line-modal" class="btn btn-primary" style="background: var(--color-income); color: #fff; box-shadow: 0 0 15px var(--color-income-glow); border-radius: 10px; padding: 8px 20px; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="clipboard"></i> คัดลอกข้อความ
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXCEL IMPORT MODAL -->
+  <div id="excel-import-modal" class="modal-overlay" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
+    <div class="modal-content glass-panel" style="max-width: 820px; width: 95%; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.4);">
+      <div class="modal-header" style="border-bottom: 1px solid var(--glass-border); padding-bottom: 16px; margin-bottom: 16px;">
+        <h3 class="modal-title" style="font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="file-up" style="color: var(--color-primary);"></i>
+          นำเข้าและแก้ไขหลายรายการด้วย Excel / CSV
+        </h3>
+        <button id="btn-close-import-modal" class="action-btn" style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); border: none; cursor: pointer; color: var(--text-primary);">
+          <i data-lucide="x" size="18"></i>
+        </button>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <!-- Instruction Banner & Download Template Link -->
+        <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 12px; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">
+            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 2px;">💡 วิธีเตรียมไฟล์สำหรับนำเข้า / แก้ไขหลายรายการ:</div>
+            • <strong>เพิ่มรายการใหม่:</strong> ปล่อยช่อง <code style="color: #818cf8; background: rgba(99,102,241,0.15); padding: 1px 4px; border-radius: 4px;">ID</code> ว่างไว้<br>
+            • <strong>แก้ไขรายการเดิม:</strong> ใส่ <code style="color: #818cf8; background: rgba(99,102,241,0.15); padding: 1px 4px; border-radius: 4px;">ID</code> เดิมจากระบบเพื่ออัปเดตข้อมูลของรายการนั้น
+          </div>
+          <button id="btn-modal-download-template" class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px; border-radius: 8px; white-space: nowrap; display: flex; align-items: center; gap: 6px;">
+            <i data-lucide="file-spreadsheet" size="14"></i>
+            ดาวน์โหลด Template (.xlsx)
+          </button>
+        </div>
+
+        <!-- Dropzone / File Picker Container -->
+        <div id="excel-dropzone" class="slip-upload-panel" style="cursor: pointer; padding: 24px 16px; margin-bottom: 0; text-align: center;">
+          <i data-lucide="upload-cloud" style="width: 36px; height: 36px; color: var(--color-primary); margin-bottom: 4px;"></i>
+          <div>
+            <strong style="font-size: 0.95rem; color: var(--text-primary); display: block; margin-bottom: 4px;">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์ Excel/CSV มาวางที่นี่</strong>
+            <span style="font-size: 0.8rem; color: var(--text-muted);">รองรับไฟล์นามสกุล .xlsx, .xls และ .csv</span>
+          </div>
+          <input type="file" id="excel-file-input" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+
+        <!-- Preview & Status Summary Section (Initially hidden until file selected) -->
+        <div id="import-preview-section" style="display: none; flex-direction: column; gap: 12px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+            <h4 style="font-size: 0.9rem; font-weight: 600; color: var(--text-primary);">
+              พรีวิวตรวจสอบข้อมูล (<span id="import-total-count">0</span> รายการ)
+            </h4>
+            <div id="import-summary-badges" style="display: flex; gap: 6px; font-size: 0.75rem; flex-wrap: wrap;">
+              <span class="type-badge income" id="import-new-count">เพิ่มใหม่ 0</span>
+              <span class="type-badge balance" id="import-update-count" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.25);">แก้ไข 0</span>
+              <span class="type-badge expense" id="import-error-count" style="display: none;">ข้อผิดพลาด 0</span>
+            </div>
+          </div>
+
+          <!-- Preview Table -->
+          <div class="table-container" style="max-height: 260px; border: 1px solid var(--glass-border); border-radius: 10px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 650px;">
+              <thead>
+                <tr style="background: rgba(0,0,0,0.3); text-align: left;">
+                  <th style="padding: 8px 10px; width: 90px;">สถานะ</th>
+                  <th style="padding: 8px 10px; width: 100px;">ID</th>
+                  <th style="padding: 8px 10px; width: 90px;">วันที่</th>
+                  <th style="padding: 8px 10px; width: 80px;">ประเภท</th>
+                  <th style="padding: 8px 10px; width: 90px;">แพลตฟอร์ม</th>
+                  <th style="padding: 8px 10px; width: 90px; text-align: right;">จำนวนเงิน</th>
+                  <th style="padding: 8px 10px; width: 120px;">หมวดหมู่</th>
+                  <th style="padding: 8px 10px;">สถานที่</th>
+                  <th style="padding: 8px 10px;">หมายเหตุ</th>
+                </tr>
+              </thead>
+              <tbody id="import-preview-tbody">
+                <!-- Populated dynamically by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; justify-content: flex-end; gap: 12px; border-top: 1px solid var(--glass-border); padding-top: 16px;">
+          <button type="button" id="btn-cancel-import" class="btn btn-secondary" style="border-radius: 10px; padding: 8px 20px;">ยกเลิก</button>
+          <button type="button" id="btn-confirm-import" class="btn btn-primary" style="border-radius: 10px; padding: 8px 20px; display: flex; align-items: center; gap: 6px;" disabled>
+            <i data-lucide="check-circle" size="16"></i> ยืนยันนำเข้าข้อมูล
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main JavaScript App Code -->
+  <script src="app.js?v=2.0"></script>
+</body>
+
+</html>

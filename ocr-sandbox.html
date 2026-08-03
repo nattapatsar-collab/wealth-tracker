@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ห้องทดลองสอน AI OCR | Wealth Tracker</title>
+
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="style.css?v=1.7">
+
+  <style>
+    .sandbox-container {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 24px;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 992px) {
+      .sandbox-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Interactive Line list styling */
+    .ocr-lines-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 450px;
+      overflow-y: auto;
+      padding-right: 6px;
+      margin-top: 12px;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .ocr-line-item {
+      display: grid;
+      grid-template-columns: 40px 1fr auto;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+    }
+
+    .ocr-line-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: var(--glass-border-hover);
+    }
+
+    .ocr-line-num {
+      font-family: monospace;
+      color: var(--text-muted);
+      font-weight: bold;
+    }
+
+    .ocr-line-input-edit {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      color: var(--text-primary);
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      width: 100%;
+      outline: none;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .ocr-line-input-edit:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .ocr-line-input-edit:focus {
+      background: rgba(0, 0, 0, 0.3);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-delete-dict-rule {
+      background: transparent;
+      border: none;
+      color: var(--color-expense);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-delete-dict-rule:hover {
+      background: rgba(239, 68, 68, 0.15) !important;
+      color: #ef4444 !important;
+    }
+
+    .ocr-role-tag {
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .role-platform { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .role-anchor { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+    .role-date { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .role-amount { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+    .role-merchant { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .role-remark { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    /* Dropdown action button */
+    .role-select-btn {
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .role-select-btn:hover {
+      background: var(--glass-bg-hover);
+      color: var(--text-primary);
+    }
+
+    /* Template preview container */
+    .template-summary-box {
+      background: rgba(99, 102, 241, 0.03);
+      border: 1px dashed var(--color-primary);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .summary-field-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .summary-field-card {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .summary-field-card span {
+      color: var(--text-secondary);
+    }
+
+    .summary-field-card strong {
+      color: var(--text-primary);
+      font-family: monospace;
+    }
+
+    /* Toggle switch tab */
+    .toggle-tab-container {
+      display: flex;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      padding: 4px;
+      border-radius: 10px;
+      width: fit-content;
+      margin-bottom: 16px;
+    }
+
+    .toggle-tab-btn {
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-tab-btn.active {
+      background: var(--color-primary);
+      color: #fff;
+    }
+
+    /* Image Preview Frame */
+    .sandbox-preview-frame {
+      width: 100%;
+      height: 320px;
+      border: 1px dashed var(--glass-border);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sandbox-preview-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .placeholder-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Existing templates table styling */
+    .templates-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+      margin-top: 12px;
+    }
+
+    .templates-table th,
+    .templates-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .templates-table th {
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .templates-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    /* Simulator result boxes */
+    .test-result-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 500px) {
+      .test-result-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .test-result-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .test-result-header {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+
+    .test-result-val {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  </style>
+
+  <!-- Lucide, Tesseract -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+
+<body>
+  <div class="app-container">
+
+    <!-- HEADER -->
+    <header style="margin-bottom: 24px;">
+      <div class="logo-section">
+        <h1>
+          <i data-lucide="cpu" style="stroke-width: 2; color: var(--color-primary);"></i>
+          ห้องทดลองสอน AI OCR
+        </h1>
+        <p>สร้างแม่แบบจดจำบรรทัด (Template Anchors & Offsets) เพื่อสอนให้ระบบเรียนรู้แพทเทิร์นสลิปทุกชนิด</p>
+      </div>
+
+      <div class="header-controls">
+        <a href="index.html" class="btn btn-secondary" style="font-size: 0.8rem; padding: 10px 16px; display: flex; align-items: center; gap: 8px; border-radius: 10px; text-decoration: none; color: var(--text-primary); cursor: pointer; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
+          <i data-lucide="arrow-left" size="16"></i>
+          <span>กลับไปหน้าหลัก</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- MAIN INTERACTIVE SANDBOX -->
+    <div class="sandbox-container">
+
+      <!-- LEFT COLUMN: IMAGE UPLOADER & PREVIEW -->
+      <section class="glass-panel" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+        <div class="chart-title" style="margin-bottom: 0; display: flex; justify-content: space-between; align-items: center;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="image" style="color: var(--color-primary);"></i>
+            อัปโหลดสลิปธนาคารเพื่อเรียนรู้/ทดสอบ
+          </span>
+        </div>
+
+        <div class="toggle-tab-container">
+          <button id="tab-train" class="toggle-tab-btn active">โหมดฝึกสอน AI (Training Mode)</button>
+          <button id="tab-test" class="toggle-tab-btn">โหมดจำลองทดสอบ (Simulator Mode)</button>
+        </div>
+
+        <!-- Image Upload Panel -->
+        <div class="slip-upload-panel" id="sandbox-upload-panel" style="margin-bottom: 0; cursor: pointer; padding: 24px 16px;">
+          <div class="placeholder-icon" id="upload-placeholder">
+            <i data-lucide="upload-cloud" size="36" style="color: var(--text-muted);"></i>
+            <span style="font-size: 0.8rem; font-weight: 600;">ลากรูปสลิปมาวาง หรือคลิกเพื่ออัปโหลด</span>
+            <span style="font-size: 0.7rem; color: var(--text-muted);">รองรับสลิปโอนเงินทุกรูปแบบ</span>
+          </div>
+          <div id="sandbox-image-container" style="display: none; width: 100%;">
+            <div class="sandbox-preview-frame">
+              <img id="sandbox-preview-img" src="" alt="Slip Preview">
+            </div>
+            <button type="button" id="btn-change-image" class="btn btn-secondary" style="margin-top: 10px; font-size: 0.75rem; width: 100%; border-radius: 8px; padding: 6px;">
+              เปลี่ยนรูปภาพสลิป
+            </button>
+          </div>
+          <input type="file" id="sandbox-file-input" accept="image/*" style="display: none;">
+        </div>
+
+        <!-- Progress bar -->
+        <div class="slip-progress-bar-bg" id="sandbox-progress-container">
+          <div class="slip-progress-bar-fill" id="sandbox-progress-fill"></div>
+        </div>
+        <div class="slip-status-text" id="sandbox-status-text" style="display: none;"></div>
+
+        <!-- SIMULATOR DISPLAY (Only visible in test mode) -->
+        <div id="simulator-results-panel" class="glass-panel" style="padding: 16px; background: rgba(0, 0, 0, 0.2); display: none;">
+          <h4 style="font-size: 0.85rem; font-weight: 600; display: flex; align-items: center; gap: 6px; color: var(--color-income);">
+            <i data-lucide="check-circle" size="14"></i>
+            ผลลัพธ์การสกัดข้อมูลสลิป (Live Simulator)
+          </h4>
+          <div id="simulator-template-badge" class="type-tag" style="margin-top: 8px; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);">
+            -
+          </div>
+
+          <div class="test-result-grid">
+            <div class="test-result-card">
+              <div class="test-result-header">บัญชี / แพลตฟอร์ม</div>
+              <div id="sim-res-platform" class="test-result-val">-</div>
+            </div>
+            <div class="test-result-card">
+              <div class="test-result-header">วันเวลาที่ทำรายการ</div>
+              <div id="sim-res-date" class="test-result-val">-</div>
+            </div>
+            <div class="test-result-card">
+              <div class="test-result-header">ยอดเงิน (บาท)</div>
+              <div id="sim-res-total" class="test-result-val" style="color: var(--color-expense);">-</div>
+            </div>
+            <div class="test-result-card">
+              <div class="test-result-header">สถานที่ / ร้านค้า</div>
+              <div id="sim-res-location" class="test-result-val" style="color: var(--color-income);">-</div>
+            </div>
+          </div>
+          
+          <div class="test-result-card" style="margin-top: 12px; width: 100%;">
+            <div class="test-result-header">หมายเหตุ (Remark / Memo)</div>
+            <div id="sim-res-remark" class="test-result-val">-</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT COLUMN: INTERACTIVE LINE MAPPER -->
+      <section class="glass-panel" id="sandbox-mapper-panel" style="padding: 20px; display: flex; flex-direction: column; gap: 16px;">
+        <div class="chart-title" style="margin-bottom: 0;">
+          <span style="display: flex; align-items: center; gap: 8px;">
+            <i data-lucide="edit-3" style="color: var(--color-primary);"></i>
+            กำหนดตำแหน่งความสัมพันธ์ข้อมูล (Interactive Line Mapper)
+          </span>
+        </div>
+
+        <p style="font-size: 0.75rem; color: var(--text-secondary); line-height: 1.4; margin-top: -8px;">
+          1. หลังการสแกนสลิป ข้อความจะปรากฏขึ้นบรรทัดต่อบรรทัดด้านล่างนี้ <br>
+          2. คลิกปุ่ม <strong>"ระบุหน้าที่..."</strong> บนบรรทัดที่ต้องการจับคู่ เพื่อกำหนดหน้าที่ของบรรทัดนั้นให้ระบบเรียนรู้
+        </p>
+
+        <!-- Dynamic Lines Container -->
+        <div class="ocr-lines-list" id="ocr-lines-container">
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 24px 0;">
+            <i data-lucide="search" size="20" style="margin-bottom: 8px; opacity: 0.5;"></i>
+            <p>ยังไม่มีข้อมูลข้อความสแกน กรุณาอัปโหลดรูปภาพสลิปด้านซ้าย</p>
+          </div>
+        </div>
+
+        <!-- LEARNED PATTERN SUMMARY -->
+        <div class="template-summary-box" id="template-summary-container" style="display: none;">
+          <h4 style="font-size: 0.8rem; font-weight: bold; color: var(--color-primary); display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+            <i data-lucide="award" size="14"></i>
+            สรุปผลแพทเทิร์นที่เรียนรู้ (Learned Offsets)
+          </h4>
+
+          <!-- Notification if Platform/Anchor missing -->
+          <div id="summary-warning-alert" style="background: rgba(239, 68, 68, 0.1); border: 1px dashed rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 8px; padding: 12px; font-size: 0.75rem; margin: 4px 0; line-height: 1.5; display: flex; flex-direction: column; gap: 4px;">
+            <span style="font-weight: 600; display: flex; align-items: center; gap: 4px;"><i data-lucide="alert-triangle" size="14"></i> ยังไม่สามารถบันทึกได้:</span>
+            <span>กรุณาระบุแถวสำหรับ <strong>Platform (ชื่อธนาคาร)</strong> และ <strong>Anchor (คำยึดคงที่)</strong> ในรายการขวา เพื่อคำนวณระยะบรรทัด (Offsets)</span>
+          </div>
+
+          <div id="summary-metrics-grid" class="summary-field-grid">
+            <div class="summary-field-card">
+              <span>แพลตฟอร์ม</span>
+              <strong id="sum-platform">-</strong>
+            </div>
+            <div class="summary-field-card">
+              <span>คำยึด (Anchor)</span>
+              <strong id="sum-anchor">-</strong>
+            </div>
+            <div class="summary-field-card" style="border-color: rgba(16, 185, 129, 0.3);">
+              <span>ระยะ วันที่</span>
+              <strong id="sum-date-offset">-</strong>
+            </div>
+            <div class="summary-field-card" style="border-color: rgba(244, 63, 94, 0.3);">
+              <span>ระยะ ยอดเงิน</span>
+              <strong id="sum-total-offset">-</strong>
+            </div>
+            <div class="summary-field-card" style="border-color: rgba(245, 158, 11, 0.3);">
+              <span>ระยะ ชื่อผู้รับ</span>
+              <strong id="sum-merchant-offset">-</strong>
+            </div>
+            <div class="summary-field-card" style="border-color: rgba(168, 85, 247, 0.3);">
+              <span>ระยะ บันทึกช่วยจำ</span>
+              <strong id="sum-remark-offset">-</strong>
+            </div>
+          </div>
+
+          <button type="button" id="btn-save-learned-template" class="btn btn-primary" style="margin-top: 10px; width: 100%; border-radius: 8px; padding: 10px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; opacity: 0.5; pointer-events: none;" disabled>
+            <i data-lucide="save"></i>
+            <span>บันทึกเทมเพลตไปยังระบบหลัก</span>
+          </button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- REGISTERED TEMPLATES TABLE -->
+    <section class="glass-panel" style="margin-top: 24px; padding: 20px;">
+      <div class="chart-title" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="database" style="color: var(--color-primary);"></i>
+          คลังแพทเทิร์นสลิปที่ AI จำได้ (Learned Templates Database)
+        </span>
+      </div>
+
+      <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: -8px; margin-bottom: 12px;">
+        รายการการจำตำแหน่งบรรทัดของธนาคาร/ช่องทางต่างๆ ที่ฝึกสำเร็จ ระบบหลักจะใช้ตัว Anchor และระยะเยื้อง (Offset) เหล่านี้ช่วยสกัดข้อมูลในหน้าแรก
+      </p>
+
+      <div style="overflow-x: auto; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0, 0, 0, 0.1);">
+        <table class="templates-table">
+          <thead>
+            <tr>
+              <th>แพลตฟอร์ม (คีย์หลัก)</th>
+              <th>คำยึด (Anchor)</th>
+              <th>เยื้อง วันที่</th>
+              <th>เยื้อง ยอดเงิน</th>
+              <th>เยื้อง ชื่อผู้รับ</th>
+              <th>เยื้อง บันทึก</th>
+              <th style="width: 80px; text-align: center;">ดำเนินการ</th>
+            </tr>
+          </thead>
+          <tbody id="learned-templates-list">
+            <tr>
+              <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                ไม่มีคลังแพทเทิร์นสลิปที่ฝึกสอนไว้
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- OCR WORD CORRECTIONS DATABASE -->
+    <section class="glass-panel" style="margin-top: 24px; padding: 20px;">
+      <div class="chart-title" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+        <span style="display: flex; align-items: center; gap: 8px;">
+          <i data-lucide="book-open" style="color: var(--color-secondary);"></i>
+          คลังเรียนรู้คำสะกดผิดของ OCR (Active Word Corrections Dictionary)
+        </span>
+      </div>
+
+      <p style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4; margin-top: -8px; margin-bottom: 16px;">
+        คลังข้อมูลคำสะกดผิดที่สะสมไว้ เมื่อสแกนสลิปแล้วคำสะกดเพี้ยน (เช่น สแกนเจอผู้รับเป็น <code>อภิภู ปคุณบูรณ์จงณ์</code>) ระบบจะตรวจสอบพจนานุกรมและแปลคำที่ถูกต้องให้เป็น <code>อภิภู ปคุณบูรณ์วงศ์</code> โดยอัตโนมัติ (แชร์ฐานข้อมูลเรียนรู้ร่วมกับหน้าแดชบอร์ดหลัก)
+      </p>
+
+      <div style="display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start;">
+        <div style="display: flex; flex-direction: column; md:flex-row; gap: 20px; width: 100%;">
+          <!-- Left: Add Form (300px max width on desktop) -->
+          <div style="flex: 0 0 auto; width: 100%; max-width: 300px; background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+            <h4 style="font-size: 0.8rem; font-weight: bold; color: var(--color-secondary); margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+              <i data-lucide="plus-circle" size="14"></i> เพิ่มกฎคำศัพท์ใหม่
+            </h4>
+            <div>
+              <label style="display: block; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 4px;">คำที่ OCR สะกดผิด (ตัวสแกนอ่านผิด)</label>
+              <input type="text" id="dict-wrong-word" placeholder="เช่น: อภิภู ปคุณบูรณ์จงณ์" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: var(--text-primary); font-size: 0.8rem; outline: none; font-family: inherit;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 0.7rem; color: var(--text-secondary); margin-bottom: 4px;">คำแปลที่ถูกต้อง (คำที่ถูกต้องในระบบ)</label>
+              <input type="text" id="dict-correct-word" placeholder="เช่น: อภิภู ปคุณบูรณ์วงศ์" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: var(--text-primary); font-size: 0.8rem; outline: none; font-family: inherit;">
+            </div>
+            <button type="button" id="btn-add-dict-rule" style="width: 100%; border-radius: 6px; padding: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; background: rgba(168, 85, 247, 0.2); border: 1px solid rgba(168, 85, 247, 0.4); color: #c084fc; font-family: inherit; font-size: 0.8rem; transition: all 0.2s;">
+              <i data-lucide="plus" size="14"></i> บันทึกคำแปล
+            </button>
+          </div>
+
+          <!-- Right: Rules List Table -->
+          <div style="flex: 1 1 auto; overflow-x: auto; border: 1px solid var(--glass-border); border-radius: 12px; background: rgba(0, 0, 0, 0.1); width: 100%;">
+            <table class="templates-table">
+              <thead>
+                <tr>
+                  <th>คำที่ OCR สแกนผิด</th>
+                  <th>คำแปลที่ถูกต้อง</th>
+                  <th style="width: 80px; text-align: center;">ลบ</th>
+                </tr>
+              </thead>
+              <tbody id="corrections-table-body">
+                <tr>
+                  <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">
+                    ไม่มีคำเรียนรู้สะกดผิดในพจนานุกรม
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer style="margin-top: 48px; text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 24px 0; border-top: 1px solid var(--glass-border);">
+      Wealth Tracker AI Training Sandbox v1.0.0 © 2026.
+    </footer>
+
+  </div>
+
+  <!-- MAIN SANDBOX LOGIC -->
+  <script>
+    // Lucide setup
+    lucide.createIcons();
+
+    // Theme logic sync
+    const savedTheme = localStorage.getItem("wt_theme") || "dark";
+    document.documentElement.setAttribute("data-theme", savedTheme);
+
+    // Global state variables
+    let learnedTemplates = {};
+    let isTestMode = false;
+    let ocrCorrections = { merchants: {}, notes: {}, categories: {} };
+
+    // --- OCR SIMULATOR HELPER FUNCTIONS ---
+    // Normalize Thai OCR characters that are commonly misread by Tesseract (e.g. SARA AM variations)
+    function normalizeThaiOcrText(text) {
+      if (!text) return "";
+      // 1. Normalize SARA AM (ํา [U+0E34 + U+0E4D] -> ำ [U+0E35])
+      let normalized = text.replace(/\u0E34\u0E4D/g, '\u0E35');
+      normalized = normalized.replace(/ํา/g, 'ำ');
+      // 2. Clean up common visual symbols that are artifacts
+      normalized = normalized.replace(/[\u200B-\u200D\uFEFF]/g, ""); // Remove zero-width spaces
+      return normalized;
+    }
+
+    // Edit Distance (Levenshtein Distance)
+    function editDistance(s1, s2) {
+      s1 = (s1 || "").toLowerCase();
+      s2 = (s2 || "").toLowerCase();
+
+      const costs = [];
+      for (let i = 0; i <= s1.length; i++) {
+        let lastValue = i;
+        for (let j = 0; j <= s2.length; j++) {
+          if (i === 0) {
+            costs[j] = j;
+          } else {
+            if (j > 0) {
+              let newValue = costs[j - 1];
+              if (s1.charAt(i - 1) !== s2.charAt(j - 1)) {
+                newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+              }
+              costs[j - 1] = lastValue;
+              lastValue = newValue;
+            }
+          }
+        }
+        if (i > 0) {
+          costs[s2.length] = lastValue;
+        }
+      }
+      return costs[s2.length];
+    }
+
+    // String similarity based on edit distance (0.0 to 1.0)
+    function getSimilarity(s1, s2) {
+      const longer = s1.length >= s2.length ? s1 : s2;
+      const shorter = s1.length < s2.length ? s1 : s2;
+      const longerLength = longer.length;
+      if (longerLength === 0) return 1.0;
+      return (longerLength - editDistance(longer, shorter)) / parseFloat(longerLength);
+    }
+
+    // Clean up amounts that have OCR noise (e.g. '|39.O0' -> '139.00')
+    function cleanOcrAmountText(amtStr) {
+      if (!amtStr) return "";
+      let cleaned = amtStr.trim();
+      cleaned = cleaned.replace(/o/gi, '0'); // replace letter O/o with number 0
+      cleaned = cleaned.replace(/i|l|\|/gi, '1'); // replace i, l, | with 1
+      cleaned = cleaned.replace(/s|S/g, '5'); // replace s with 5
+      cleaned = cleaned.replace(/b|B/g, '8'); // replace b with 8
+      cleaned = cleaned.replace(/g|q/gi, '9'); // replace g, q with 9
+      // Keep only numbers, dot, and minus (and strip spaces)
+      cleaned = cleaned.replace(/\s/g, '');
+      cleaned = cleaned.replace(/[^0-9\.\-]/g, '');
+      return cleaned;
+    }
+
+    // Clean up year string with OCR noise (e.g. '256ง' -> '2569')
+    function cleanOcrYearText(yearStr) {
+      if (!yearStr) return "";
+      let cleaned = yearStr.trim();
+      cleaned = cleaned.replace(/ง/g, '9'); // Thai letter Ngor Ngu looks like 9
+      cleaned = cleaned.replace(/ถ/g, '0'); // Thai letter Thor Thung looks like 0
+      cleaned = cleaned.replace(/o|O/gi, '0');
+      cleaned = cleaned.replace(/l|i|I/g, '1');
+      cleaned = cleaned.replace(/q|g/gi, '9');
+      cleaned = cleaned.replace(/s|S/g, '5');
+      cleaned = cleaned.replace(/b|B/g, '8');
+      cleaned = cleaned.replace(/[^0-9]/g, '');
+      return cleaned;
+    }
+
+    // Map Thai months to numeric values
+    function getThaiMonthNumber(monthStr) {
+      if (!monthStr) return null;
+      const clean = monthStr.replace(/[\s\.]/g, "").trim();
+      
+      const mapping = {
+        "มค": 1, "มกราคม": 1, "มกรา": 1,
+        "กพ": 2, "กุมภาพันธ์": 2, "กุมภา": 2,
+        "มีค": 3, "มีนาคม": 3, "มีนา": 3,
+        "เมย": 4, "เมษายน": 4, "เมษา": 4,
+        "พค": 5, "พฤษภาคม": 5, "พฤษภา": 5,
+        "มิย": 6, "มิถุนายน": 6, "มิถุนา": 6,
+        "กค": 7, "กรกฎาคม": 7, "กรกฎา": 7,
+        "สค": 8, "สิงหาคม": 8, "สิงหา": 8,
+        "กย": 9, "กันยายน": 9, "กันยา": 9,
+        "ตค": 10, "ตุลาคม": 10, "ตุลา": 10,
+        "พย": 11, "พฤศจิกายน": 11, "พฤศจิกา": 11,
+        "ธค": 12, "ธันวาคม": 12, "ธันวา": 12
+      };
+      
+      for (const key in mapping) {
+        if (clean === key || clean.includes(key)) {
+          return mapping[key];
+        }
+      }
+      return null;
+    }
+
+    // Fuzzy check Month names in Thai
+    function getFuzzyThaiMonth(monthStr) {
+      if (!monthStr) return null;
+      const clean = monthStr.replace(/[\s\.]/g, "").trim();
+      
+      // Try exact mapping first
+      const exactNum = getThaiMonthNumber(clean);
+      if (exactNum) return exactNum;
+      
+      // Abbreviations map
+      const abbreviations = {
+        "มค": 1, "กพ": 2, "มีค": 3, "เมย": 4, "พค": 5, "มิย": 6,
+        "กค": 7, "สค": 8, "กย": 9, "ตค": 10, "พย": 11, "ธค": 12
+      };
+      
+      let bestMonth = null;
+      let maxSimilarity = 0;
+      
+      for (const abbrev in abbreviations) {
+        const sim = getSimilarity(clean, abbrev);
+        if (sim > 0.5 && sim > maxSimilarity) {
+          maxSimilarity = sim;
+          bestMonth = abbreviations[abbrev];
+        }
+      }
+      
+      return bestMonth;
+    }
+
+    const ENG_MONTHS_MAP = {
+      "jan": 1, "feb": 2, "mar": 3, "apr": 4, "may": 5, "jun": 6,
+      "jul": 7, "aug": 8, "sep": 9, "oct": 10, "nov": 11, "dec": 12
+    };
+
+    function getMonthNumber(monthStr) {
+      if (!monthStr) return null;
+      const clean = monthStr.toLowerCase().replace(/[\s\.]/g, "").trim();
+      
+      const thaiNum = getFuzzyThaiMonth(monthStr);
+      if (thaiNum) return thaiNum;
+      
+      for (const key in ENG_MONTHS_MAP) {
+        if (clean.startsWith(key)) {
+          return ENG_MONTHS_MAP[key];
+        }
+      }
+      return null;
+    }
+
+    // Extract Date in YYYY-MM-DD format
+    function extractSlipDate(text) {
+      // Pattern 1: dd MMM yyyy (e.g. 06 มิ.ย. 2569 or 06 Jun 2026)
+      const textDateRegex = /(\d{1,2})\s*([ก-ฮa-zA-Z\.]+)\s*([0-9ก-ฮa-zA-Z]{4})/g;
+      let match;
+      while ((match = textDateRegex.exec(text)) !== null) {
+        const day = parseInt(match[1], 10);
+        const monthStr = match[2];
+        const rawYear = match[3];
+        const cleanedYearStr = cleanOcrYearText(rawYear);
+        let year = parseInt(cleanedYearStr, 10);
+        
+        const monthNum = getMonthNumber(monthStr);
+        if (monthNum && day >= 1 && day <= 31 && year > 1000) {
+          if (year > 2500) year -= 543;
+          const mm = String(monthNum).padStart(2, "0");
+          const dd = String(day).padStart(2, "0");
+          return `${year}-${mm}-${dd}`;
+        }
+      }
+      
+      // Pattern 2: dd/mm/yyyy
+      const numericDateRegex = /(\d{1,2})[-/](\d{1,2})[-/]([0-9ก-ฮa-zA-Z]{4})/g;
+      while ((match = numericDateRegex.exec(text)) !== null) {
+        const day = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10);
+        const rawYear = match[3];
+        const cleanedYearStr = cleanOcrYearText(rawYear);
+        let year = parseInt(cleanedYearStr, 10);
+        
+        if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year > 1000) {
+          if (year > 2500) year -= 543;
+          const mm = String(month).padStart(2, "0");
+          const dd = String(day).padStart(2, "0");
+          return `${year}-${mm}-${dd}`;
+        }
+      }
+      
+      // Pattern 3: yyyy-mm-dd
+      const ymdDateRegex = /([0-9ก-ฮa-zA-Z]{4})[-/](\d{1,2})[-/](\d{1,2})/g;
+      while ((match = ymdDateRegex.exec(text)) !== null) {
+        const rawYear = match[1];
+        const cleanedYearStr = cleanOcrYearText(rawYear);
+        let year = parseInt(cleanedYearStr, 10);
+        const month = parseInt(match[2], 10);
+        const day = parseInt(match[3], 10);
+        
+        if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year > 1000) {
+          if (year > 2500) year -= 543;
+          const mm = String(month).padStart(2, "0");
+          const dd = String(day).padStart(2, "0");
+          return `${year}-${mm}-${dd}`;
+        }
+      }
+      
+      return null;
+    }
+
+    // Extract decimal amount
+    function extractSlipAmount(text) {
+      const lines = text.split("\n").map(l => l.trim()).filter(Boolean);
+      
+      const amountKeywords = [
+        "จำนวนเงินที่ชำระ", "จำนวนเงิน", "ยอดชำระ", "ยอดเงิน", "ชำระ", "amount", "total", "บาท", "baht",
+        "ยอดเงินโอน", "จำนวนเงินโอน", "ยอดโอน", "ยอดสุทธิ", "ยอดเงินสุทธิ", "สุทธิ", 
+        "payment amount", "transferred amount", "net amount", "transfer amount", "pay amount", "value", "price"
+      ];
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].toLowerCase();
+        if (amountKeywords.some(keyword => line.includes(keyword))) {
+          for (let j = i; j <= Math.min(i + 2, lines.length - 1); j++) {
+            const cleanedLine = cleanOcrAmountText(lines[j]);
+            
+            // Try decimal first
+            const decMatch = cleanedLine.match(/(\d+\.\d{2})/);
+            if (decMatch) {
+              const val = parseFloat(decMatch[1]);
+              if (val > 0) return val;
+            }
+            
+            // Try integer
+            const intMatch = cleanedLine.match(/(\d+)/);
+            if (intMatch) {
+              const val = parseFloat(intMatch[1]);
+              if (val > 0 && val < 1000000 && val !== 2568 && val !== 2569 && val !== 2026) return val;
+            }
+          }
+        }
+      }
+      
+      // Fallback 1: get first non-zero decimal
+      for (let i = 0; i < lines.length; i++) {
+        const cleanedLine = cleanOcrAmountText(lines[i]);
+        const decMatch = cleanedLine.match(/(\d+\.\d{2})/);
+        if (decMatch) {
+          const val = parseFloat(decMatch[1]);
+          if (val > 0) return val;
+        }
+      }
+      
+      // Fallback 2: search for any number followed by "บาท"
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].toLowerCase();
+        if (line.includes("บาท") || line.includes("baht")) {
+          const cleanedLine = cleanOcrAmountText(lines[i]);
+          const numMatch = cleanedLine.match(/(\d+(?:\.\d{2})?)/);
+          if (numMatch) {
+            const val = parseFloat(numMatch[1]);
+            if (val > 0 && val !== 2568 && val !== 2569 && val !== 2026) return val;
+          }
+        }
+      }
+      
+      return null;
+    }
+
+    // Extract Platform Name
+    function extractSlipPlatform(text) {
+      const lower = text.toLowerCase();
+      if (lower.includes("make by kbank") || lower.includes("make")) {
+        return "Make";
+      }
+      if (lower.includes("kplus") || lower.includes("k-plus") || lower.includes("kbank") || lower.includes("kasikorn")) {
+        return "K-Plus";
+      }
+      if (lower.includes("scb") || lower.includes("ไทยพาณิชย์")) {
+        return "SCB";
+      }
+      if (lower.includes("ttb") || lower.includes("ทีทีบี") || lower.includes("tmb") || lower.includes("ธนชาต")) {
+        return "TTB";
+      }
+      if (lower.includes("krungthai") || lower.includes("ktb") || lower.includes("กรุงไทย")) {
+        return "Krungthai";
+      }
+      if (lower.includes("gsb") || lower.includes("ออมสิน") || lower.includes("mymo")) {
+        return "GSB";
+      }
+      if (lower.includes("เป๋าตัง") || lower.includes("paotang") || lower.includes("g-wallet") || lower.includes("g wallet")) {
+        return "เป๋าตัง";
+      }
+      if (lower.includes("truemoney") || lower.includes("true wallet") || lower.includes("ทรูมันนี่") || lower.includes("วอลเล็ท")) {
+        return "TrueMoney";
+      }
+      if (lower.includes("rabbit") || lower.includes("line pay")) {
+        return "Rabbit Line Pay";
+      }
+      if (lower.includes("shopeepay") || lower.includes("shopee pay")) {
+        return "ShopeePay";
+      }
+      if (lower.includes("krungsri") || lower.includes("bay") || lower.includes("กรุงศรี")) {
+        return "Krungsri";
+      }
+      if (lower.includes("bangkok bank") || lower.includes("bbl") || lower.includes("กรุงเทพ") || lower.includes("บัวหลวง")) {
+        return "Bangkok Bank";
+      }
+      return "";
+    }
+
+    // Load templates from localStorage
+    function loadTemplatesFromStorage() {
+      const stored = localStorage.getItem("wealth_tracker_learned_templates");
+      if (stored) {
+        try {
+          learnedTemplates = JSON.parse(stored);
+        } catch (e) {
+          console.error("Error parsing stored learned templates", e);
+          learnedTemplates = {};
+        }
+      } else {
+        learnedTemplates = {};
+      }
+    }
+
+    function saveTemplatesToStorage() {
+      localStorage.setItem("wealth_tracker_learned_templates", JSON.stringify(learnedTemplates));
+    }
+
+    // Render templates table
+    function renderTemplatesTable() {
+      loadTemplatesFromStorage();
+      const tbody = document.getElementById("learned-templates-list");
+      tbody.innerHTML = "";
+
+      const keys = Object.keys(learnedTemplates);
+      if (keys.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 20px;">
+              ไม่มีคลังแพทเทิร์นสลิปที่ฝึกสอนไว้
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      keys.forEach(k => {
+        const t = learnedTemplates[k];
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td><strong style="color: var(--color-primary);">${t.platformName}</strong> <span style="font-size: 0.7rem; color: var(--text-muted); font-family: monospace;">(${t.platformKey})</span></td>
+          <td><code style="background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px;">${t.anchorWord}</code></td>
+          <td style="font-family: monospace; font-weight: bold; color: var(--color-income);">${t.dateOffset >= 0 ? '+' + t.dateOffset : t.dateOffset}</td>
+          <td style="font-family: monospace; font-weight: bold; color: var(--color-expense);">${t.amountOffset >= 0 ? '+' + t.amountOffset : t.amountOffset}</td>
+          <td style="font-family: monospace; font-weight: bold; color: #fbbf24;">${t.merchantOffset >= 0 ? '+' + t.merchantOffset : t.merchantOffset}</td>
+          <td style="font-family: monospace; font-weight: bold; color: #c084fc;">${t.remarkOffset >= 0 ? '+' + t.remarkOffset : t.remarkOffset}</td>
+          <td style="text-align: center;">
+            <button class="action-btn delete-btn" style="padding: 6px; border-radius: 50%; display: inline-flex;" onclick="deleteTemplate('${k}')">
+              <i data-lucide="trash-2" style="width: 14px; height: 14px; color: var(--color-expense);"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      lucide.createIcons();
+    }
+
+    // Global delete template function
+    window.deleteTemplate = function(key) {
+      loadTemplatesFromStorage();
+      if (learnedTemplates[key]) {
+        if (confirm(`คุณต้องการลบแพทเทิร์นการจำสลิป "${learnedTemplates[key].platformName}" หรือไม่?`)) {
+          delete learnedTemplates[key];
+          saveTemplatesToStorage();
+          renderTemplatesTable();
+          alert("ลบสำเร็จ!");
+        }
+      }
+    };
+
+    // Mode selection tabs listeners
+    const tabTrain = document.getElementById("tab-train");
+    const tabTest = document.getElementById("tab-test");
+    const mapperPanel = document.getElementById("sandbox-mapper-panel");
+    const simulatorPanel = document.getElementById("simulator-results-panel");
+
+    tabTrain.addEventListener("click", () => {
+      isTestMode = false;
+      tabTrain.classList.add("active");
+      tabTest.classList.remove("active");
+      mapperPanel.style.display = "flex";
+      simulatorPanel.style.display = "none";
+      resetTrainingState();
+    });
+
+    tabTest.addEventListener("click", () => {
+      isTestMode = true;
+      tabTest.classList.add("active");
+      tabTrain.classList.remove("active");
+      mapperPanel.style.display = "none";
+      simulatorPanel.style.display = "block";
+      resetTrainingState();
+    });
+
+    // File selection triggers
+    const uploadPanel = document.getElementById("sandbox-upload-panel");
+    const fileInput = document.getElementById("sandbox-file-input");
+    const changeImgBtn = document.getElementById("btn-change-image");
+    const placeholder = document.getElementById("upload-placeholder");
+    const previewContainer = document.getElementById("sandbox-image-container");
+    const previewImg = document.getElementById("sandbox-preview-img");
+
+    uploadPanel.addEventListener("click", (e) => {
+      if (e.target !== changeImgBtn && !changeImgBtn.contains(e.target)) {
+        fileInput.click();
+      }
+    });
+
+    changeImgBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      fileInput.click();
+    });
+
+    // Drag and drop behavior
+    uploadPanel.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      uploadPanel.style.borderColor = "var(--color-primary)";
+      uploadPanel.style.background = "rgba(99, 102, 241, 0.05)";
+    });
+
+    uploadPanel.addEventListener("dragleave", () => {
+      uploadPanel.style.borderColor = "var(--glass-border)";
+      uploadPanel.style.background = "rgba(255, 255, 255, 0.03)";
+    });
+
+    uploadPanel.addEventListener("drop", (e) => {
+      e.preventDefault();
+      uploadPanel.style.borderColor = "var(--glass-border)";
+      uploadPanel.style.background = "rgba(255, 255, 255, 0.03)";
+
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        processImageFile(files[0]);
+      }
+    });
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files && fileInput.files.length > 0) {
+        processImageFile(fileInput.files[0]);
+      }
+    });
+
+    // Process image file and run Tesseract OCR
+    function processImageFile(file) {
+      if (!file) return;
+
+      // Reset states
+      resetTrainingState();
+
+      // UI updates
+      placeholder.style.display = "none";
+      previewContainer.style.display = "block";
+      
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+
+      // Perform OCR
+      runSlipOcr(file);
+    }
+
+    // Reset current training selection UI
+    function resetTrainingState() {
+      ocrLines = [];
+      assignedRoles = {
+        platform: null,
+        anchor: null,
+        date: null,
+        amount: null,
+        merchant: null,
+        remark: null
+      };
+      
+      document.getElementById("ocr-lines-container").innerHTML = `
+        <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 24px 0;">
+          <i data-lucide="search" size="20" style="margin-bottom: 8px; opacity: 0.5;"></i>
+          <p>รอการอัปโหลดรูปภาพสลิปเพื่อสแกนข้อความ</p>
+        </div>
+      `;
+      document.getElementById("template-summary-container").style.display = "none";
+      
+      // Clear simulator values
+      document.getElementById("sim-res-platform").innerText = "-";
+      document.getElementById("sim-res-date").innerText = "-";
+      document.getElementById("sim-res-total").innerText = "-";
+      document.getElementById("sim-res-location").innerText = "-";
+      document.getElementById("sim-res-remark").innerText = "-";
+      document.getElementById("simulator-template-badge").innerText = "-";
+      
+      lucide.createIcons();
+    }
+
+    function runSlipOcr(file) {
+      const progressContainer = document.getElementById("sandbox-progress-container");
+      const progressFill = document.getElementById("sandbox-progress-fill");
+      const statusText = document.getElementById("sandbox-status-text");
+
+      if (typeof Tesseract === "undefined") {
+        alert("ระบบ OCR ไม่โหลด เนื่องจากไม่พบไลบรารี Tesseract.js");
+        return;
+      }
+
+      progressContainer.style.display = "block";
+      progressFill.style.width = "0%";
+      statusText.style.display = "block";
+      statusText.innerText = "กำลังเริ่มต้นสแกนข้อความ...";
+      statusText.className = "slip-status-text";
+
+      Tesseract.recognize(
+        file,
+        'tha+eng',
+        {
+          logger: m => {
+            if (m.status === 'recognizing text') {
+              const pct = Math.round(m.progress * 100);
+              progressFill.style.width = `${pct}%`;
+              statusText.innerText = `กำลังวิเคราะห์รูปภาพสลิป (${pct}%)...`;
+            }
+          }
+        }
+      ).then(({ data: { text } }) => {
+        progressContainer.style.display = "none";
+        statusText.innerText = "วิเคราะห์ข้อความสลิปสำเร็จ!";
+        statusText.className = "slip-status-text success";
+
+        // Store extracted lines after normalization
+        const normalizedText = normalizeThaiOcrText(text);
+        ocrLines = normalizedText.split("\n").map(l => l.trim()).filter(Boolean);
+        
+        if (isTestMode) {
+          runSimulatorParsing();
+        } else {
+          renderOcrLines();
+        }
+      }).catch(err => {
+        console.error("Tesseract Sandbox Error:", err);
+        progressContainer.style.display = "none";
+        statusText.innerText = "วิเคราะห์ข้อความล้มเหลว กรุณาลองอัปโหลดรูปใหม่อีกครั้ง";
+        statusText.className = "slip-status-text error";
+      });
+    }
+
+    // Render interactive lines for training
+    function renderOcrLines() {
+      const container = document.getElementById("ocr-lines-container");
+      container.innerHTML = "";
+
+      if (ocrLines.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 24px 0;">
+            <i data-lucide="alert-triangle" size="20" style="margin-bottom: 8px; opacity: 0.5;"></i>
+            <p>ไม่พบข้อความในรูปสลิปนี้ กรุณาลองใช้สลิปใบอื่น</p>
+          </div>
+        `;
+        lucide.createIcons();
+        return;
+      }
+
+      ocrLines.forEach((lineText, idx) => {
+        const item = document.createElement("div");
+        item.className = "ocr-line-item";
+        item.id = `line-row-${idx}`;
+        item.innerHTML = `
+          <div class="ocr-line-num">${idx}</div>
+          <div style="width: 100%;">
+            <input type="text" class="ocr-line-input-edit" value="${lineText}" onchange="updateOcrLineText(${idx}, this.value)" title="คลิกเพื่อแก้ไขตัวสะกดผิดที่ OCR อ่านเพี้ยน">
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <div id="role-badge-${idx}"></div>
+            <select class="role-select-btn" onchange="assignLineRole(${idx}, this.value)">
+              <option value="">+ เพิ่มบทบาท...</option>
+              <option value="platform">Platform (ชื่อธนาคาร)</option>
+              <option value="anchor">Anchor (คำยึดหลัก)</option>
+              <option value="date">Date (วันเวลาธุรกรรม)</option>
+              <option value="amount">Amount (ยอดเงินโอน)</option>
+              <option value="merchant">Merchant (ผู้รับ/ร้านค้า)</option>
+              <option value="remark">Remark (บันทึกช่วยจำ)</option>
+              <option value="clear">❌ ล้างหน้าที่บรรทัดนี้</option>
+            </select>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+
+      updateTemplateSummary();
+    }
+
+    // Editable line text listener
+    window.updateOcrLineText = function(idx, newValue) {
+      ocrLines[idx] = newValue.trim();
+      updateTemplateSummary();
+      if (isTestMode) {
+        runSimulatorParsing();
+      }
+    };
+
+    // Assign line role
+    window.assignLineRole = function(lineIdx, role) {
+      if (role === "clear") {
+        // Clear all roles currently assigned to this line
+        for (const key in assignedRoles) {
+          if (assignedRoles[key] === lineIdx) {
+            assignedRoles[key] = null;
+          }
+        }
+      } else if (role) {
+        // Assign this role to the new line (and clear it from any other line)
+        for (const key in assignedRoles) {
+          if (key === role) {
+            assignedRoles[key] = null;
+          }
+        }
+        assignedRoles[role] = lineIdx;
+      }
+
+      // 2. Redraw badges on all rows (supporting multiple badges per row)
+      for (let idx = 0; idx < ocrLines.length; idx++) {
+        const badgeDiv = document.getElementById(`role-badge-${idx}`);
+        const select = document.querySelector(`#line-row-${idx} select`);
+        if (!badgeDiv) continue;
+
+        let badgesHtml = "";
+        for (const key in assignedRoles) {
+          if (assignedRoles[key] === idx) {
+            let roleName = "";
+            let className = "";
+            if (key === "platform") { roleName = "Platform"; className = "role-platform"; }
+            if (key === "anchor") { roleName = "Anchor"; className = "role-anchor"; }
+            if (key === "date") { roleName = "Date"; className = "role-date"; }
+            if (key === "amount") { roleName = "Amount"; className = "role-amount"; }
+            if (key === "merchant") { roleName = "Merchant"; className = "role-merchant"; }
+            if (key === "remark") { roleName = "Remark"; className = "role-remark"; }
+            badgesHtml += `<span class="ocr-role-tag ${className}" style="margin-right: 4px; display: inline-block;">${roleName}</span>`;
+          }
+        }
+        badgeDiv.innerHTML = badgesHtml;
+        if (select) {
+          select.value = ""; // Reset dropdown to "+ เพิ่มบทบาท..."
+        }
+      }
+
+      // 3. Update summary box
+      updateTemplateSummary();
+    };
+
+    // Update Summary Box
+    function updateTemplateSummary() {
+      const container = document.getElementById("template-summary-container");
+      const warningAlert = document.getElementById("summary-warning-alert");
+      const metricsGrid = document.getElementById("summary-metrics-grid");
+      const saveBtn = document.getElementById("btn-save-learned-template");
+
+      if (ocrLines.length === 0) {
+        container.style.display = "none";
+        return;
+      }
+
+      container.style.display = "flex";
+
+      const pIdx = assignedRoles.platform;
+      const aIdx = assignedRoles.anchor;
+      
+      if (pIdx === null || aIdx === null) {
+        warningAlert.style.display = "flex";
+        metricsGrid.style.display = "none";
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = "0.5";
+        saveBtn.style.pointerEvents = "none";
+        return;
+      }
+
+      warningAlert.style.display = "none";
+      metricsGrid.style.display = "grid";
+      saveBtn.disabled = false;
+      saveBtn.style.opacity = "1";
+      saveBtn.style.pointerEvents = "auto";
+
+      const platformVal = ocrLines[pIdx];
+      const anchorVal = ocrLines[aIdx];
+
+      document.getElementById("sum-platform").innerText = platformVal;
+      document.getElementById("sum-anchor").innerText = `L-${aIdx} (${anchorVal})`;
+
+      // Calculate relative offsets
+      const calcOffsetStr = (targetIdx) => {
+        if (targetIdx === null) return "ไม่ได้ระบุ";
+        const offset = targetIdx - aIdx;
+        return offset >= 0 ? `+${offset} บรรทัด` : `${offset} บรรทัด`;
+      };
+
+      document.getElementById("sum-date-offset").innerText = calcOffsetStr(assignedRoles.date);
+      document.getElementById("sum-total-offset").innerText = calcOffsetStr(assignedRoles.amount);
+      document.getElementById("sum-merchant-offset").innerText = calcOffsetStr(assignedRoles.merchant);
+      document.getElementById("sum-remark-offset").innerText = calcOffsetStr(assignedRoles.remark);
+    }
+
+    // --- ACTIVE WORD CORRECTIONS DICTIONARY MANAGER ---
+    function loadOcrCorrections() {
+      const saved = localStorage.getItem("wealth_tracker_ocr_corrections");
+      if (saved) {
+        try {
+          ocrCorrections = JSON.parse(saved);
+          if (!ocrCorrections.merchants) ocrCorrections.merchants = {};
+          if (!ocrCorrections.notes) ocrCorrections.notes = {};
+          if (!ocrCorrections.categories) ocrCorrections.categories = {};
+        } catch (e) {
+          console.error("Error parsing OCR corrections", e);
+        }
+      }
+    }
+
+    function saveOcrCorrections() {
+      localStorage.setItem("wealth_tracker_ocr_corrections", JSON.stringify(ocrCorrections));
+      renderCorrectionsTable();
+    }
+
+    function renderCorrectionsTable() {
+      loadOcrCorrections();
+      const tbody = document.getElementById("corrections-table-body");
+      if (!tbody) return;
+
+      const keys = Object.keys(ocrCorrections.merchants);
+      if (keys.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" style="text-align: center; color: var(--text-muted); padding: 20px;">
+              ไม่มีคำเรียนรู้สะกดผิดในพจนานุกรม
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = "";
+      keys.forEach(k => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-family: monospace; color: var(--text-secondary);">${k}</td>
+          <td style="font-weight: 600; color: var(--color-income);">${ocrCorrections.merchants[k]}</td>
+          <td style="text-align: center;">
+            <button class="btn-delete-dict-rule" onclick="deleteOcrCorrectionRule('${k}')" style="background: transparent; border: none; color: var(--color-expense); cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s;" title="ลบกฎคำนี้">
+              <i data-lucide="trash-2" style="width: 16px; height: 16px;"></i>
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      lucide.createIcons();
+    }
+
+    // Add dictionary word correction rule
+    document.addEventListener("DOMContentLoaded", () => {
+      const addBtn = document.getElementById("btn-add-dict-rule");
+      if (addBtn) {
+        addBtn.addEventListener("click", () => {
+          const wrongInput = document.getElementById("dict-wrong-word");
+          const correctInput = document.getElementById("dict-correct-word");
+          
+          const wrongVal = wrongInput.value.trim().toLowerCase();
+          const correctVal = correctInput.value.trim();
+          
+          if (!wrongVal || !correctVal) {
+            alert("กรุณากรอกทั้งคำสะกดผิดและคำแปลที่ถูกต้อง");
+            return;
+          }
+          
+          loadOcrCorrections();
+          ocrCorrections.merchants[wrongVal] = correctVal;
+          saveOcrCorrections();
+          
+          wrongInput.value = "";
+          correctInput.value = "";
+          alert("บันทึกกฎแปลคำสะกดผิดสำเร็จ!");
+          
+          if (isTestMode) {
+            runSimulatorParsing();
+          }
+        });
+      }
+      renderCorrectionsTable();
+    });
+
+    window.deleteOcrCorrectionRule = function(key) {
+      if (confirm(`คุณต้องการลบกฎเรียนรู้สะกดผิดสำหรับ "${key}" ใช่หรือไม่?`)) {
+        loadOcrCorrections();
+        delete ocrCorrections.merchants[key];
+        saveOcrCorrections();
+        if (isTestMode) {
+          runSimulatorParsing();
+        }
+      }
+    };
+
+    // Save Template Click Handler
+    document.getElementById("btn-save-learned-template").addEventListener("click", () => {
+      const pIdx = assignedRoles.platform;
+      const aIdx = assignedRoles.anchor;
+
+      if (pIdx === null || aIdx === null) {
+        alert("กรุณาระบุแถวสำหรับ Platform และ Anchor ก่อนกดบันทึก");
+        return;
+      }
+
+      const platformText = ocrLines[pIdx];
+      const anchorText = ocrLines[aIdx];
+
+      // Standardize platform key (lowercase, trimmed)
+      const platformKey = platformText.toLowerCase().replace(/[\s\.\-_]/g, "");
+
+      loadTemplatesFromStorage();
+
+      // Create template object
+      learnedTemplates[platformKey] = {
+        platformName: platformText,
+        platformKey: platformKey,
+        anchorWord: anchorText,
+        dateOffset: assignedRoles.date !== null ? assignedRoles.date - aIdx : null,
+        amountOffset: assignedRoles.amount !== null ? assignedRoles.amount - aIdx : null,
+        merchantOffset: assignedRoles.merchant !== null ? assignedRoles.merchant - aIdx : null,
+        remarkOffset: assignedRoles.remark !== null ? assignedRoles.remark - aIdx : null
+      };
+
+      saveTemplatesToStorage();
+      renderTemplatesTable();
+      alert(`บันทึกแพทเทิร์นเรียนรู้สำหรับ "${platformText}" สำเร็จแล้ว!`);
+      
+      resetTrainingState();
+      placeholder.style.display = "flex";
+      previewContainer.style.display = "none";
+      previewImg.src = "";
+    });
+
+
+    // --- SIMULATOR PARSING ENGINE ---
+    function runSimulatorParsing() {
+      loadTemplatesFromStorage();
+      
+      const badge = document.getElementById("simulator-template-badge");
+      
+      // 1. Try to find a matching learned template by platform keyword
+      let matchedTemplate = null;
+      let matchedKey = "";
+      
+      // Build a concatenated string of text for easy scanning
+      const fullText = ocrLines.join("\n");
+      const fullTextLower = fullText.toLowerCase();
+      
+      const templateKeys = Object.keys(learnedTemplates);
+      for (const k of templateKeys) {
+        const t = learnedTemplates[k];
+        // Check if the slip contains the platform key or platform name
+        if (fullTextLower.includes(t.platformKey) || fullTextLower.includes(t.platformName.toLowerCase())) {
+          matchedTemplate = t;
+          matchedKey = k;
+          break;
+        }
+      }
+      
+      if (!matchedTemplate) {
+        badge.innerHTML = `<span style="color: var(--color-expense);"><i data-lucide="alert-circle" style="width: 12px; height: 12px; display: inline-block;"></i> ไม่พบแพทเทิร์นที่เคยเรียนรู้ (ใช้ค่า Heuristics สำรอง)</span>`;
+        lucide.createIcons();
+        
+        // Fallback to main app default extraction heuristics
+        runFallbackParsing();
+        return;
+      }
+
+      // 2. Found template! Now locate the anchor word line index
+      let anchorIdx = -1;
+      const lowerAnchor = matchedTemplate.anchorWord.toLowerCase();
+      for (let i = 0; i < ocrLines.length; i++) {
+        if (ocrLines[i].toLowerCase().includes(lowerAnchor)) {
+          anchorIdx = i;
+          break;
+        }
+      }
+
+      // 2.1 If no exact match, try fuzzy matching (Levenshtein similarity >= 70%)
+      if (anchorIdx === -1) {
+        let bestSim = 0;
+        for (let i = 0; i < ocrLines.length; i++) {
+          const sim = getSimilarity(ocrLines[i], matchedTemplate.anchorWord);
+          if (sim >= 0.70 && sim > bestSim) {
+            bestSim = sim;
+            anchorIdx = i;
+          }
+        }
+        if (anchorIdx !== -1) {
+          console.log(`Sandbox Simulator matched anchor "${matchedTemplate.anchorWord}" fuzzily with "${ocrLines[anchorIdx]}" (Similarity: ${Math.round(bestSim * 100)}%)`);
+        }
+      }
+
+      if (anchorIdx === -1) {
+        badge.innerHTML = `<span style="color: #f59e0b;"><i data-lucide="alert-triangle" style="width: 12px; height: 12px; display: inline-block;"></i> เจอแพลตฟอร์ม ${matchedTemplate.platformName} แต่ไม่พบตัวยึด Anchor "${matchedTemplate.anchorWord}" (ใช้ระบบ Heuristics แทน)</span>`;
+        lucide.createIcons();
+        runFallbackParsing();
+        return;
+      }
+
+      // 3. Extract using relative offsets
+      badge.innerHTML = `<span style="color: var(--color-income);"><i data-lucide="check" style="width: 12px; height: 12px; display: inline-block;"></i> สกัดด้วย Pattern เรียนรู้สำเร็จ: <strong>${matchedTemplate.platformName}</strong></span>`;
+      lucide.createIcons();
+
+      const getValAtOffset = (offset) => {
+        if (offset === null) return "";
+        const targetIdx = anchorIdx + offset;
+        if (targetIdx >= 0 && targetIdx < ocrLines.length) {
+          return ocrLines[targetIdx];
+        }
+        return "";
+      };
+
+      const rawPlatform = matchedTemplate.platformName;
+      const rawDate = getValAtOffset(matchedTemplate.dateOffset);
+      const rawAmount = getValAtOffset(matchedTemplate.amountOffset);
+      const rawMerchant = getValAtOffset(matchedTemplate.merchantOffset);
+      const rawRemark = getValAtOffset(matchedTemplate.remarkOffset);
+
+      // Extract & clean values exactly like app.js
+      const dateVal = rawDate ? (extractSlipDate(rawDate) || extractSlipDate(fullText)) : extractSlipDate(fullText);
+      const totalVal = rawAmount ? (extractSlipAmount(rawAmount) || extractSlipAmount(fullText)) : extractSlipAmount(fullText);
+      let locationVal = rawMerchant ? rawMerchant.replace(/[:\-↓⬇➡️→]/g, "").trim() : "";
+      let remarkVal = rawRemark ? rawRemark.trim() : "";
+
+      // Apply learned corrections
+      loadOcrCorrections();
+      const cleanLoc = (locationVal || "").toLowerCase().trim();
+      if (cleanLoc && ocrCorrections.merchants[cleanLoc]) {
+        console.log(`Sandbox Simulator Applied learned Merchant mapping: "${locationVal}" -> "${ocrCorrections.merchants[cleanLoc]}"`);
+        locationVal = ocrCorrections.merchants[cleanLoc];
+      }
+      const cleanRem = (remarkVal || "").toLowerCase().trim();
+      if (cleanRem && ocrCorrections.notes[cleanRem]) {
+        remarkVal = ocrCorrections.notes[cleanRem];
+      }
+
+      // Render simulator output
+      document.getElementById("sim-res-platform").innerText = rawPlatform;
+      document.getElementById("sim-res-date").innerText = dateVal || rawDate || "อ่านค่าไม่ได้";
+      document.getElementById("sim-res-total").innerText = totalVal ? "฿ " + parseFloat(totalVal).toFixed(2) : rawAmount || "อ่านค่าไม่ได้";
+      document.getElementById("sim-res-location").innerText = locationVal || "อ่านค่าไม่ได้";
+      document.getElementById("sim-res-remark").innerText = remarkVal || "-";
+    }
+
+    // Simplified fallback parsing for simulator mockup when no pattern is found
+    function runFallbackParsing() {
+      const fullText = ocrLines.join("\n");
+      
+      // Platform detection
+      const plat = extractSlipPlatform(fullText) || "ไม่ทราบแพลตฟอร์ม";
+
+      // Date extraction
+      const dateVal = extractSlipDate(fullText);
+
+      // Amount extraction
+      const totalVal = extractSlipAmount(fullText);
+
+      // Location extraction (simplified)
+      let loc = "ดึงชื่อร้านล้มเหลว";
+      const lines = ocrLines;
+      const indicators = ["ไปยัง", "โอนให้", "ชำระให้", "to:", "to "];
+      for (let i = 0; i < lines.length; i++) {
+        const ind = indicators.find(kw => lines[i].toLowerCase().includes(kw));
+        if (ind && i < lines.length - 1) {
+          loc = lines[i+1];
+          break;
+        }
+      }
+
+      document.getElementById("sim-res-platform").innerText = plat;
+      document.getElementById("sim-res-date").innerText = dateVal || "ดึงวันที่ล้มเหลว";
+      document.getElementById("sim-res-total").innerText = totalVal ? "฿ " + parseFloat(totalVal).toFixed(2) : "ดึงยอดล้มเหลว";
+      document.getElementById("sim-res-location").innerText = loc;
+      document.getElementById("sim-res-remark").innerText = "-";
+    }
+
+    // Initialize display on startup
+    renderTemplatesTable();
+  </script>
+</body>
+
+</html>
