@@ -6002,6 +6002,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
     });
+  }
+
   // --- AMOUNT CALCULATOR ENGINE ---
   function safeEvaluateMath(expr) {
     if (!expr || typeof expr !== "string") return null;
