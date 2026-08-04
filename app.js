@@ -2546,7 +2546,7 @@ function renderBudgetControl() {
         <div class="detail-math-box" style="padding: 14px 16px; background: rgba(15, 23, 42, 0.75); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px; font-size: 0.82rem; box-shadow: 0 4px 14px rgba(0,0,0,0.3);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed rgba(255,255,255,0.12); padding-bottom: 8px;">
             <span style="color: ${spent > limit ? '#ef4444' : '#34d399'}; font-weight: 700; font-size: 0.88rem;">${statusText}</span>
-            <span style="color: #cbd5e1; font-size: 0.82rem;">เฉลี่ยใช้ได้: <strong style="color: #38bdf8; font-size: 0.88rem;">฿${Math.round(allowedDailyAvgRemaining).toLocaleString()}/วัน</strong></span>
+            <span style="color: #cbd5e1; font-size: 0.82rem;">เฉลี่ยใช้ได้: <strong style="color: #38bdf8; font-size: 0.88rem;">฿${allowedDailyAvgRemaining.toLocaleString("th-TH", {minimumFractionDigits: 2, maximumFractionDigits: 2})}/วัน</strong></span>
           </div>
           <div style="margin-top: 8px; color: #e2e8f0; font-size: 0.8rem; line-height: 1.6;">
             <strong style="color: #ffffff; font-size: 0.85rem; display: block; margin-bottom: 6px;">📊 รายละเอียดการคำนวณ:</strong>
