@@ -857,11 +857,59 @@
             <input type="date" id="form-date" class="form-input" style="border-radius: 10px; padding: 10px 12px;"
               required>
           </div>
-          <div>
-            <label class="form-label" for="form-total" style="font-weight: 600; font-size: 0.8rem;">ยอดเงิน
-              (บาท)</label>
-            <input type="number" id="form-total" class="form-input" style="border-radius: 10px; padding: 10px 12px;"
-              step="0.01" min="0.01" placeholder="0.00" required>
+          <div style="position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label class="form-label" for="form-total" style="font-weight: 600; font-size: 0.8rem; margin-bottom: 0;">ยอดเงิน (บาท)</label>
+              <span id="calc-live-preview" style="font-size: 0.78rem; color: #38bdf8; font-weight: 700; display: none;"></span>
+            </div>
+            <div style="position: relative; width: 100%;">
+              <input type="text" id="form-total" class="form-input" style="border-radius: 10px; padding: 10px 38px 10px 12px; font-weight: 600;"
+                placeholder="0.00 หรือใส่สูตร เช่น 150+45" required autocomplete="off" inputmode="decimal">
+              <button type="button" id="btn-toggle-calc" title="เปิดเครื่องคิดเลข" style="position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; border-radius: 6px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;">
+                <i data-lucide="calculator" size="14"></i>
+              </button>
+            </div>
+
+            <!-- Popup Keypad Calculator Widget -->
+            <div id="calc-popover" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 6px; z-index: 1050; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 14px; padding: 12px; width: 240px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); backdrop-filter: blur(12px);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 6px;">
+                <span style="font-size: 0.78rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 4px;">
+                  <i data-lucide="calculator" size="13"></i> เครื่องคิดเลข
+                </span>
+                <span id="calc-display-sub" style="font-size: 0.75rem; color: #94a3b8; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"></span>
+              </div>
+              
+              <div class="calc-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                <button type="button" class="calc-btn op" data-calc="C" style="background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700; border-radius: 6px; padding: 8px 0; font-size: 0.85rem; cursor: pointer;">C</button>
+                <button type="button" class="calc-btn op" data-calc="(" style="background: rgba(255,255,255,0.08); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 0; font-size: 0.85rem; cursor: pointer;">(</button>
+                <button type="button" class="calc-btn op" data-calc=")" style="background: rgba(255,255,255,0.08); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 0; font-size: 0.85rem; cursor: pointer;">)</button>
+                <button type="button" class="calc-btn op" data-calc="/" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; border-radius: 6px; padding: 8px 0; font-size: 0.85rem; cursor: pointer;">÷</button>
+
+                <button type="button" class="calc-btn num" data-calc="7" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">7</button>
+                <button type="button" class="calc-btn num" data-calc="8" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">8</button>
+                <button type="button" class="calc-btn num" data-calc="9" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">9</button>
+                <button type="button" class="calc-btn op" data-calc="*" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; border-radius: 6px; padding: 8px 0; font-size: 0.85rem; cursor: pointer;">×</button>
+
+                <button type="button" class="calc-btn num" data-calc="4" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">4</button>
+                <button type="button" class="calc-btn num" data-calc="5" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">5</button>
+                <button type="button" class="calc-btn num" data-calc="6" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">6</button>
+                <button type="button" class="calc-btn op" data-calc="-" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; border-radius: 6px; padding: 8px 0; font-size: 0.85rem; cursor: pointer;">-</button>
+
+                <button type="button" class="calc-btn num" data-calc="1" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">1</button>
+                <button type="button" class="calc-btn num" data-calc="2" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">2</button>
+                <button type="button" class="calc-btn num" data-calc="3" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">3</button>
+                <button type="button" class="calc-btn op" data-calc="+" style="background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 700; border-radius: 6px; padding: 8px 0; font-size: 0.85rem; cursor: pointer;">+</button>
+
+                <button type="button" class="calc-btn num" data-calc="0" style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">0</button>
+                <button type="button" class="calc-btn num" data-calc="." style="background: rgba(255,255,255,0.06); color: #ffffff; border: 1px solid rgba(255,255,255,0.1); font-weight: 600; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">.</button>
+                <button type="button" class="calc-btn op" data-calc="DEL" style="background: rgba(255,255,255,0.08); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 8px 0; font-size: 0.8rem; cursor: pointer;">⌫</button>
+                <button type="button" class="calc-btn op" data-calc="=" style="background: #38bdf8; color: #0f172a; border: none; font-weight: 700; border-radius: 6px; padding: 8px 0; font-size: 0.9rem; cursor: pointer;">=</button>
+              </div>
+
+              <button type="button" id="btn-apply-calc" style="width: 100%; margin-top: 8px; background: #10b981; color: #ffffff; border: none; font-weight: 700; border-radius: 8px; padding: 7px 0; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 4px;">
+                <i data-lucide="check" size="14"></i> ใช้ยอดเงินนี้
+              </button>
+            </div>
           </div>
         </div>
 

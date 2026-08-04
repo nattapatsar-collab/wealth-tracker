@@ -5414,12 +5414,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     }
     
+    let parsedTotal = evaluateAmountInput(true);
+    if (parsedTotal === null || isNaN(parsedTotal)) {
+      parsedTotal = parseFloat(document.getElementById("form-total").value.replace(/,/g, ""));
+    }
+
     const txnData = {
       id: document.getElementById("form-id").value || undefined,
       date: document.getElementById("form-date").value,
       type: typeVal,
       platform: document.getElementById("form-platform").value.trim(),
-      total: parseFloat(document.getElementById("form-total").value),
+      total: parsedTotal,
       category: document.getElementById("form-category").value.trim(),
       location: document.getElementById("form-location").value.trim(),
       remark: remark,
@@ -5997,8 +6002,145 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
       }
     });
+  // --- AMOUNT CALCULATOR ENGINE ---
+  function safeEvaluateMath(expr) {
+    if (!expr || typeof expr !== "string") return null;
+    let cleaned = expr.replace(/,/g, "").replace(/×/g, "*").replace(/÷/g, "/").replace(/x/gi, "*").trim();
+    if (!cleaned) return null;
+    if (!/^[0-9+\-*/.() \t]+$/.test(cleaned)) return null;
+    try {
+      const func = new Function(`"use strict"; return (${cleaned});`);
+      const val = func();
+      if (typeof val === "number" && !isNaN(val) && isFinite(val)) {
+        return val;
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
   }
-  
+
+  function evaluateAmountInput(forceApply = false) {
+    const input = document.getElementById("form-total");
+    const preview = document.getElementById("calc-live-preview");
+    const popSub = document.getElementById("calc-display-sub");
+    if (!input) return null;
+
+    let valStr = input.value.trim();
+    if (!valStr) {
+      if (preview) preview.style.display = "none";
+      if (popSub) popSub.innerText = "";
+      return null;
+    }
+
+    const evaluated = safeEvaluateMath(valStr);
+    if (evaluated !== null && !isNaN(evaluated)) {
+      const formatted = (Math.round(evaluated * 100) / 100).toFixed(2);
+      if (preview) {
+        preview.innerText = `= ฿${parseFloat(formatted).toLocaleString("th-TH", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        preview.style.display = "inline-block";
+      }
+      if (popSub) {
+        popSub.innerText = `= ฿${parseFloat(formatted).toLocaleString("th-TH", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+      }
+      if (forceApply) {
+        input.value = formatted;
+        if (preview) preview.style.display = "none";
+      }
+      return parseFloat(formatted);
+    } else {
+      const num = parseFloat(valStr.replace(/,/g, ""));
+      if (!isNaN(num)) {
+        if (preview) preview.style.display = "none";
+        if (popSub) popSub.innerText = `= ฿${num.toLocaleString("th-TH", {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        return num;
+      } else {
+        if (preview) {
+          preview.innerText = "สูตรไม่ถูกต้อง";
+          preview.style.display = "inline-block";
+        }
+        if (popSub) popSub.innerText = "สูตรไม่ถูกต้อง";
+        return null;
+      }
+    }
+  }
+
+  // Global handle for evaluateAmountInput
+  window.evaluateAmountInput = evaluateAmountInput;
+
+  const inputFormTotal = document.getElementById("form-total");
+  const btnToggleCalc = document.getElementById("btn-toggle-calc");
+  const calcPopover = document.getElementById("calc-popover");
+  const btnApplyCalc = document.getElementById("btn-apply-calc");
+
+  if (inputFormTotal) {
+    inputFormTotal.addEventListener("input", () => evaluateAmountInput(false));
+    inputFormTotal.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        evaluateAmountInput(true);
+        if (calcPopover) calcPopover.style.display = "none";
+      }
+    });
+    inputFormTotal.addEventListener("blur", () => {
+      setTimeout(() => {
+        if (document.activeElement && (document.activeElement.classList.contains("calc-btn") || document.activeElement.id === "btn-apply-calc")) return;
+        evaluateAmountInput(true);
+      }, 150);
+    });
+  }
+
+  if (btnToggleCalc && calcPopover) {
+    btnToggleCalc.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isVisible = calcPopover.style.display === "block";
+      calcPopover.style.display = isVisible ? "none" : "block";
+      if (!isVisible && inputFormTotal) {
+        evaluateAmountInput(false);
+        inputFormTotal.focus();
+      }
+    });
+  }
+
+  if (btnApplyCalc) {
+    btnApplyCalc.addEventListener("click", () => {
+      evaluateAmountInput(true);
+      if (calcPopover) calcPopover.style.display = "none";
+    });
+  }
+
+  // Keypad Buttons Click Handler
+  document.querySelectorAll(".calc-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (!inputFormTotal) return;
+      const key = btn.getAttribute("data-calc");
+      
+      if (key === "C") {
+        inputFormTotal.value = "";
+      } else if (key === "DEL") {
+        inputFormTotal.value = inputFormTotal.value.slice(0, -1);
+      } else if (key === "=") {
+        evaluateAmountInput(true);
+        return;
+      } else {
+        inputFormTotal.value += key;
+      }
+      evaluateAmountInput(false);
+      inputFormTotal.focus();
+    });
+  });
+
+  // Close calc popover when clicking outside
+  document.addEventListener("click", (e) => {
+    if (calcPopover && calcPopover.style.display === "block") {
+      if (!calcPopover.contains(e.target) && e.target !== btnToggleCalc && !btnToggleCalc.contains(e.target)) {
+        calcPopover.style.display = "none";
+      }
+    }
+  });
+
   // Initialize Lucide icons on page load completion
   lucide.createIcons();
 });
+
