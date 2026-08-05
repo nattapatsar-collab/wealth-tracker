@@ -331,7 +331,7 @@
             style="border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.2); color: #ffffff; width: 100%;"
             autocomplete="off">
         </div>
-        <button id="btn-parse-quick-chat" class="btn btn-primary" style="padding: 11px 20px; font-size: 0.88rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer; border: none; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);">
+        <button type="button" id="btn-parse-quick-chat" class="btn btn-primary btn-parse-quick-chat" onclick="if(window.handleTriggerQuickChat) window.handleTriggerQuickChat(document.getElementById('quick-chat-input').value);" style="padding: 11px 20px; font-size: 0.88rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer; border: none; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);">
           <i data-lucide="sparkles" size="16"></i>
           <span>วิเคราะห์และยืนยัน</span>
         </button>

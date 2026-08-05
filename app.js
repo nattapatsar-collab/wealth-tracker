@@ -6283,6 +6283,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("confirm-location").value = parsed.location;
     document.getElementById("confirm-remark").value = parsed.remark;
 
+    window.handleTriggerQuickChat = handleTriggerQuickChat;
+    window.closeQuickConfirmModal = closeQuickConfirmModal;
+
     const modal = document.getElementById("quick-chat-confirm-modal");
     if (modal) {
       modal.classList.add("active");
@@ -6295,13 +6298,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (modal) modal.classList.remove("active");
   }
 
-  const btnParseQuick = document.getElementById("btn-parse-quick-chat");
-  const inputQuickChat = document.getElementById("quick-chat-input");
+  window.handleTriggerQuickChat = handleTriggerQuickChat;
+  window.closeQuickConfirmModal = closeQuickConfirmModal;
 
-  if (btnParseQuick && inputQuickChat) {
-    btnParseQuick.addEventListener("click", () => {
-      handleTriggerQuickChat(inputQuickChat.value);
-    });
+  const inputQuickChat = document.getElementById("quick-chat-input");
+  if (inputQuickChat) {
     inputQuickChat.addEventListener("keydown", (e) => {
       if (e.key === "Enter") {
         e.preventDefault();
@@ -6310,12 +6311,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   }
 
-  document.querySelectorAll(".quick-chip-btn").forEach(chip => {
-    chip.addEventListener("click", () => {
-      const text = chip.getAttribute("data-text");
-      if (inputQuickChat) inputQuickChat.value = text;
+  // Robust Global Event Delegation for Quick Chat Buttons & Chips
+  document.addEventListener("click", (e) => {
+    const parseBtn = e.target.closest("#btn-parse-quick-chat, .btn-parse-quick-chat");
+    if (parseBtn) {
+      e.preventDefault();
+      const input = document.getElementById("quick-chat-input");
+      handleTriggerQuickChat(input ? input.value : "");
+      return;
+    }
+
+    const chipBtn = e.target.closest(".quick-chip-btn");
+    if (chipBtn) {
+      e.preventDefault();
+      const text = chipBtn.getAttribute("data-text");
+      const input = document.getElementById("quick-chat-input");
+      if (input) input.value = text;
       handleTriggerQuickChat(text);
-    });
+      return;
+    }
   });
 
   const btnCloseQuickConfirm = document.getElementById("btn-close-quick-confirm");
