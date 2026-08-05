@@ -1546,6 +1546,201 @@ tr:hover td {
 }
 .calc-btn:hover {
   filter: brightness(1.25) !important;
+overflow: hidden;
+  width: 100%;
+}
+
+.budget-editor-row select {
+  padding-right: 18px !important;
+}
+
+@media (max-width: 600px) {
+  .budget-editor-row {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px;
+  }
+  .budget-editor-row select.editor-cat-name {
+    grid-column: span 2;
+  }
+  .budget-editor-row input.editor-cat-limit {
+    grid-column: span 2;
+  }
+  .budget-editor-row select.editor-cat-type {
+    grid-column: span 1;
+  }
+  .budget-editor-row select.editor-cat-rule {
+    grid-column: span 1;
+  }
+  .budget-editor-row button.btn-remove-budget-row {
+    grid-column: span 2;
+    justify-content: center;
+    padding: 8px !important;
+    width: 100%;
+  }
+}
+
+/* Monthly Budget Control Global Styles (PC & Mobile alignment) */
+#dashboard-budget-card {
+  gap: 16px !important;
+  height: auto !important;
+  min-height: fit-content !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: 36px !important;
+}
+
+#budget-sub-heading {
+  margin-top: 8px !important;
+  margin-bottom: 8px !important;
+  padding-bottom: 6px !important;
+}
+
+.budget-tabs-container {
+  margin-bottom: 10px !important;
+}
+
+.budget-summary-card {
+  padding: 14px 18px !important;
+  margin-bottom: 0px !important;
+}
+
+#budget-breakdown-list {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  gap: 16px !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: fit-content !important;
+  max-height: none !important;
+  padding: 16px 18px 28px 18px !important;
+  margin-top: 8px !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 14px !important;
+  background: rgba(0, 0, 0, 0.15) !important;
+  align-items: flex-start !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.budget-category-wrapper {
+  flex: 0 0 360px !important;
+  min-width: 320px !important;
+  max-width: 400px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: auto !important;
+  min-height: fit-content !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding-bottom: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.breakdown-detail-panel {
+  display: none;
+  width: 100% !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+.breakdown-detail-panel.active {
+  display: block !important;
+}
+
+.detail-math-box {
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 16px 18px !important;
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 12px !important;
+}
+
+@media (max-width: 600px) {
+  .budget-category-wrapper {
+    flex: 0 0 85vw !important;
+    min-width: 280px !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .charts-container {
+    height: 580px !important;
+  }
+  
+  #dashboard-budget-card {
+    height: auto !important;
+  }
+  
+  .chart-wrapper {
+    flex: 1 !important;
+    min-height: 200px !important;
+    max-height: 280px !important;
+    position: relative !important;
+  }
+  
+  #financial-rule-card,
+  #savings-goal-card {
+    height: 420px !important;
+  }
+  
+  .glass-panel {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Make DSR panel a flex container filling the Liabilities card */
+  #dsr-display-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+  
+  /* Let debts container fill the remaining space in DSR panel */
+  #debts-list-container {
+    flex: 1;
+    min-height: 0;
+    max-height: none !important;
+    overflow-y: auto;
+  }
+  
+  /* Let savings container fill the remaining space in Savings Goal card */
+  #savings-display-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+/* Responsive adjustments for Time Range Selector and Line Summary button */
+@media (max-width: 768px) {
+  .desktop-only-spacer {
+    display: none !important;
+  }
+  .time-range-selector {
+    justify-content: center !important;
+    flex-direction: column !important;
+  }
+  #btn-copy-line-summary {
+    width: 100% !important;
+    margin-top: 8px !important;
+    justify-content: center !important;
+  }
+}
+
+/* Amount Calculator Keypad Styles */
+.calc-btn {
+  transition: all 0.15s ease !important;
+  user-select: none !important;
+}
+.calc-btn:hover {
+  filter: brightness(1.25) !important;
   transform: translateY(-1px) !important;
 }
 .calc-btn:active {
@@ -1554,4 +1749,15 @@ tr:hover td {
 #btn-toggle-calc:hover {
   background: rgba(56, 189, 248, 0.25) !important;
   border-color: rgba(56, 189, 248, 0.5) !important;
+}
+
+/* Quick Suggestion Chips Styles */
+.quick-chip-btn:hover {
+  background: rgba(56, 189, 248, 0.2) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #38bdf8 !important;
+  transform: translateY(-1px);
+}
+.quick-chip-btn:active {
+  transform: translateY(1px);
 }

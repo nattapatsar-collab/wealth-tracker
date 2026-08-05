@@ -6142,6 +6142,223 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 
+  // --- QUICK CHAT TEXT PARSER & CONFIRMATION ENGINE ---
+  function parseQuickChatInput(rawText) {
+    if (!rawText || !rawText.trim()) return null;
+    const text = rawText.trim();
+    const lower = text.toLowerCase();
+
+    // 1. Extract Amount
+    let total = null;
+    const tokens = text.split(/\s+/);
+    for (let token of tokens) {
+      const cleanedToken = token.replace(/,/g, "").replace(/บาท|baht|b|฿/gi, "");
+      if (/^[0-9]+(\.[0-9]{1,2})?$/.test(cleanedToken)) {
+        const parsedNum = parseFloat(cleanedToken);
+        if (parsedNum > 0) {
+          total = parsedNum;
+          break;
+        }
+      }
+    }
+
+    if (total === null) {
+      const match = text.match(/([0-9]+(?:,[0-9]{3})*(?:\.[0-9]{1,2})?)\s*(?:บาท|baht|b|฿)?/i);
+      if (match) {
+        total = parseFloat(match[1].replace(/,/g, ""));
+      }
+    }
+
+    // 2. Transaction Type (Income vs Expense)
+    const incomeKeywords = ["เงินเดือน", "โบนัส", "ปันผล", "รายรับ", "รายได้", "ขายของ", "คืนเงิน", "เบี้ยเลี้ยง", "โอที", "ot", "income", "salary"];
+    let type = "Expense";
+    if (incomeKeywords.some(kw => lower.includes(kw))) {
+      type = "Income";
+    }
+
+    // 3. Category Detection
+    let category = type === "Income" ? "รายได้จากการทำงาน" : "หมวดหมู่อื่น ๆ";
+    
+    const categoryDictionary = [
+      { cat: "อาหารและเครื่องดื่ม", kw: ["ข้าว", "อาหาร", "สุกี้", "ชา", "กาแฟ", "ชาไข่มุก", "ข้าวมันไก่", "ก๋วยเตี๋ยว", "ชาผัก", "ขนม", "ผลไม้", "mk", "7-eleven", "711", "amazon", "starbucks", "kfc", "mcdonalds", "shabu", "ชาบู", "บุฟเฟต์", "หมูกระทะ", "น้ำ", "มื้อเที่ยง", "มื้อเย็น", "มื้อเช้า", "กิน", "ทาน"] },
+      { cat: "ค่าเดินทางและยานพาหนะ", kw: ["เติมน้ำมัน", "น้ำมัน", "ปตท", "ptt", "bcp", "แท็กซี่", "วิน", "รถเมล์", "bts", "mrt", "ทางด่วน", "ค่ารถ", "ตั๋ว", "ตั๋วเครื่องบิน", "grab", "bolt", "lineman", "ที่จอดรถ", "ล้างรถ"] },
+      { cat: "ที่พักและสาธารณูปโภค", kw: ["ค่าห้อง", "ค่าเช่า", "ค่าไฟ", "ค่าน้ำ", "ค่าเน็ต", "อินเทอร์เน็ต", "ค่าคอนโด", "ค่าบ้าน", "wifi"] },
+      { cat: "การลงทุนและเงินออม", kw: ["ออมเงิน", "ลงทุน", "หุ้น", "กองทุน", "ฝากเงิน", "ทอง", "คริปโต", "crypto", "btc"] },
+      { cat: "ช้อปปิ้งและของใช้", kw: ["ช้อป", "เสื้อ", "รองเท้า", "กระเป๋า", "ของใช้", "shopee", "lazada", "tiktok", "สกินแคร์", "เครื่องสำอาง", "วัตสัน", "watsons", "uniclo", "zara"] },
+      { cat: "ความบันเทิงและสื่อดิจิทัล", kw: ["หนัง", "ตั๋วหนัง", "netflix", "youtube", "spotify", "เกม", "steam", "disney", "คอนเสิร์ต", "เที่ยว"] },
+      { cat: "สุขภาพและอนามัย", kw: ["หมอ", "ค่ายา", "โรงพยาบาล", "คลินิก", "ทำฟัน", "ตัดแว่น", "ยา", "วิตามิน"] },
+      { cat: "ภาระหนี้สิน", kw: ["ผ่อน", "งวด", "บัตรเครดิต", "หนี้", "จ่ายบัตร", "กู้"] },
+      { cat: "รายได้จากการทำงาน", kw: ["เงินเดือน", "โบนัส", "โอที", "ot", "ค่าจ้าง", "ฟรีแลนซ์", "ปันผล"] }
+    ];
+
+    for (let c of categoryDictionary) {
+      if (c.kw.some(k => lower.includes(k))) {
+        category = c.cat;
+        break;
+      }
+    }
+
+    // 4. Platform and Location Detection
+    let platform = "Make";
+    let location = "";
+
+    const platformDictionary = [
+      { p: "Make", kw: ["make", "เมก", "make kbank"] },
+      { p: "TTB", kw: ["ttb", "ทีทีบี", "ทหารไทย"] },
+      { p: "K-Plus", kw: ["kplus", "k-plus", "เคพลัส", "กสิกร", "kbank"] },
+      { p: "SCB", kw: ["scb", "ไทยพาณิชย์", "เอซซีบี"] },
+      { p: "Krungsri", kw: ["krungsri", "กรุงศรี", "bay"] },
+      { p: "Bangkok Bank", kw: ["bbl", "กรุงเทพ", "บัวหลวง"] },
+      { p: "ShopeePay", kw: ["shopeepay", "ช้อปปี้เพย์"] },
+      { p: "TrueMoney", kw: ["truemoney", "ทรูมันนี่", "wallet", "วอลเล็ท"] },
+      { p: "เงินสด", kw: ["เงินสด", "cash"] }
+    ];
+
+    for (let p of platformDictionary) {
+      if (p.kw.some(k => lower.includes(k))) {
+        platform = p.p;
+        break;
+      }
+    }
+
+    const locationDictionary = [
+      { loc: "MK", kw: ["mk", "เอ็มเค"] },
+      { loc: "7-Eleven", kw: ["7-eleven", "711", "เซเว่น"] },
+      { loc: "Lotus's", kw: ["lotus", "โลตัส"] },
+      { loc: "Big C", kw: ["bigc", "บิ๊กซี"] },
+      { loc: "CJ Express", kw: ["cj", "ซีเจ"] },
+      { loc: "PTT", kw: ["ptt", "ปตท"] },
+      { loc: "Amazon", kw: ["amazon", "อเมซอน"] },
+      { loc: "Starbucks", kw: ["starbucks", "สตาร์บัคส์"] },
+      { loc: "Grab", kw: ["grab", "แกร็บ"] },
+      { loc: "Shopee", kw: ["shopee", "ช้อปปี้"] },
+      { loc: "Lazada", kw: ["lazada", "ลาซาด้า"] }
+    ];
+
+    for (let l of locationDictionary) {
+      if (l.kw.some(k => lower.includes(k))) {
+        location = l.loc;
+        break;
+      }
+    }
+
+    // 5. Date Parsing
+    const now = new Date();
+    let date = toGregorianISODate(now);
+    if (lower.includes("เมื่อวาน") || lower.includes("yesterday")) {
+      const yest = new Date(now.getTime() - 86400000);
+      date = toGregorianISODate(yest);
+    }
+
+    return {
+      rawText: text,
+      type: type,
+      date: date,
+      total: total || 0,
+      category: category,
+      platform: platform,
+      location: location,
+      remark: text
+    };
+  }
+
+  function handleTriggerQuickChat(rawText) {
+    if (!rawText || !rawText.trim()) {
+      showStatus("กรุณาพิมพ์ข้อความสั้นๆ ก่อนคลิกวิเคราะห์", "warning");
+      return;
+    }
+    const parsed = parseQuickChatInput(rawText);
+    if (!parsed) {
+      showStatus("ไม่สามารถวิเคราะห์ข้อความได้ กรุณาลองใหม่อีกครั้ง", "error");
+      return;
+    }
+
+    // Open Confirmation Modal
+    document.getElementById("confirm-raw-text").innerText = `"${parsed.rawText}"`;
+    document.getElementById("confirm-type").value = parsed.type;
+    document.getElementById("confirm-date").value = parsed.date;
+    document.getElementById("confirm-total").value = parsed.total > 0 ? parsed.total : "";
+    document.getElementById("confirm-category").value = parsed.category;
+    document.getElementById("confirm-platform").value = parsed.platform;
+    document.getElementById("confirm-location").value = parsed.location;
+    document.getElementById("confirm-remark").value = parsed.remark;
+
+    const modal = document.getElementById("quick-chat-confirm-modal");
+    if (modal) {
+      modal.classList.add("active");
+      if (window.lucide) window.lucide.createIcons();
+    }
+  }
+
+  function closeQuickConfirmModal() {
+    const modal = document.getElementById("quick-chat-confirm-modal");
+    if (modal) modal.classList.remove("active");
+  }
+
+  const btnParseQuick = document.getElementById("btn-parse-quick-chat");
+  const inputQuickChat = document.getElementById("quick-chat-input");
+
+  if (btnParseQuick && inputQuickChat) {
+    btnParseQuick.addEventListener("click", () => {
+      handleTriggerQuickChat(inputQuickChat.value);
+    });
+    inputQuickChat.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleTriggerQuickChat(inputQuickChat.value);
+      }
+    });
+  }
+
+  document.querySelectorAll(".quick-chip-btn").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const text = chip.getAttribute("data-text");
+      if (inputQuickChat) inputQuickChat.value = text;
+      handleTriggerQuickChat(text);
+    });
+  });
+
+  const btnCloseQuickConfirm = document.getElementById("btn-close-quick-confirm");
+  const btnCancelQuickConfirm = document.getElementById("btn-cancel-quick-confirm");
+  const btnSubmitQuickConfirm = document.getElementById("btn-submit-quick-confirm");
+  const modalQuickConfirm = document.getElementById("quick-chat-confirm-modal");
+
+  if (btnCloseQuickConfirm) btnCloseQuickConfirm.addEventListener("click", closeQuickConfirmModal);
+  if (btnCancelQuickConfirm) btnCancelQuickConfirm.addEventListener("click", closeQuickConfirmModal);
+  if (modalQuickConfirm) {
+    modalQuickConfirm.addEventListener("click", (e) => {
+      if (e.target === modalQuickConfirm) closeQuickConfirmModal();
+    });
+  }
+
+  if (btnSubmitQuickConfirm) {
+    btnSubmitQuickConfirm.addEventListener("click", async () => {
+      const txnData = {
+        date: document.getElementById("confirm-date").value,
+        type: document.getElementById("confirm-type").value,
+        platform: document.getElementById("confirm-platform").value.trim(),
+        total: parseFloat(document.getElementById("confirm-total").value),
+        category: document.getElementById("confirm-category").value.trim(),
+        location: document.getElementById("confirm-location").value.trim(),
+        remark: document.getElementById("confirm-remark").value.trim(),
+        subtype: "direct",
+        linkDebtId: ""
+      };
+
+      if (!txnData.date || !txnData.platform || isNaN(txnData.total) || txnData.total <= 0 || !txnData.category) {
+        showStatus("กรุณาตรวจสอบยอดเงินและหมวดหมู่ให้ถูกต้องก่อนบันทึก", "error");
+        return;
+      }
+
+      const success = await saveTransaction(txnData);
+      if (success) {
+        closeQuickConfirmModal();
+        if (inputQuickChat) inputQuickChat.value = "";
+        showStatus("ยืนยันบันทึกข้อมูลจากแชทเรียบร้อยแล้ว!", "success");
+      }
+    });
+  }
+
   // Initialize Lucide icons on page load completion
   lucide.createIcons();
 });
