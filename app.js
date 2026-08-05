@@ -2545,25 +2545,25 @@ function renderBudgetControl() {
       <div class="breakdown-detail-panel ${isFilteredCategory ? 'active' : ''}" id="detail-panel-${index}" style="margin-top: 10px; margin-bottom: 8px; width: 100%;">
         <div class="detail-math-box" style="padding: 14px 16px; border-radius: 12px; font-size: 0.82rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">
-            <span style="color: ${spent > limit ? '#ef4444' : '#10b981'}; font-weight: 700; font-size: 0.88rem;">${statusText}</span>
-            <span class="breakdown-item-sub" style="font-size: 0.82rem;">เฉลี่ยใช้ได้: <strong style="color: #0284c7; font-size: 0.88rem;">฿${allowedDailyAvgRemaining.toLocaleString("th-TH", {minimumFractionDigits: 2, maximumFractionDigits: 2})}/วัน</strong></span>
+            <span class="${spent > limit ? 'math-highlight-red' : 'math-highlight-green'}" style="font-weight: 700; font-size: 0.9rem;">${statusText}</span>
+            <span class="math-subtext" style="font-size: 0.82rem;">เฉลี่ยใช้ได้: <strong class="math-highlight-blue" style="font-size: 0.88rem;">฿${allowedDailyAvgRemaining.toLocaleString("th-TH", {minimumFractionDigits: 2, maximumFractionDigits: 2})}/วัน</strong></span>
           </div>
-          <div style="margin-top: 8px; font-size: 0.8rem; line-height: 1.6;">
-            <strong class="breakdown-item-title" style="font-size: 0.85rem; display: block; margin-bottom: 6px;">📊 รายละเอียดการคำนวณ:</strong>
-            <div class="breakdown-item-sub" style="display: flex; flex-direction: column; gap: 4px;">
-              <div>• งบสำหรับช่วงเวลา: <strong class="breakdown-item-title">฿${limit.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
-              <div>• ใช้จ่ายแล้ว: <strong class="breakdown-item-title">฿${spent.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+          <div style="margin-top: 8px; font-size: 0.82rem; line-height: 1.65;">
+            <strong style="font-size: 0.86rem; display: block; margin-bottom: 6px;">📊 รายละเอียดการคำนวณ:</strong>
+            <div class="math-subtext" style="display: flex; flex-direction: column; gap: 4px;">
+              <div>• งบสำหรับช่วงเวลา: <strong>฿${limit.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+              <div>• ใช้จ่ายแล้ว: <strong>฿${spent.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
               ${spent > limit 
-                ? `<div>• <span style="color: #ef4444; font-weight: 700;">ยอดเกินงบประมาณ: ฿${(spent - limit).toLocaleString("th-TH", {minimumFractionDigits: 2})}</span></div>`
-                : `<div>• ยอดคงเหลือเบื้องต้น: <strong class="breakdown-item-title">฿${remainingLimit.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
-                   <div>• หักสัดส่วนชดเชยหมวดที่เกิน: <strong class="breakdown-item-title">-฿${deficitShare.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
-                   <div>• ยอดคงเหลือที่ใช้ได้จริง: <strong style="color: #10b981; font-size: 0.9rem; font-weight: 700;">฿${adjustedRemaining.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>`
+                ? `<div>• <span class="math-highlight-red">ยอดเกินงบประมาณ: ฿${(spent - limit).toLocaleString("th-TH", {minimumFractionDigits: 2})}</span></div>`
+                : `<div>• ยอดคงเหลือเบื้องต้น: <strong>฿${remainingLimit.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+                   <div>• หักสัดส่วนชดเชยหมวดที่เกิน: <strong>-฿${deficitShare.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>
+                   <div>• ยอดคงเหลือที่ใช้ได้จริง: <strong class="math-highlight-green" style="font-size: 0.92rem;">฿${adjustedRemaining.toLocaleString("th-TH", {minimumFractionDigits: 2})}</strong></div>`
               }
-              <div>• วันคงเหลือในรอบ: <strong class="breakdown-item-title">${remainingDays} วัน</strong> (เฉลี่ยงบตั้งต้น ฿${dailyLimit.toLocaleString("th-TH", {maximumFractionDigits: 2})}/วัน)</div>
+              <div>• วันคงเหลือในรอบ: <strong>${remainingDays} วัน</strong> (เฉลี่ยงบตั้งต้น ฿${dailyLimit.toLocaleString("th-TH", {maximumFractionDigits: 2})}/วัน)</div>
             </div>
           </div>
         </div>
-        <div class="detail-txns-title breakdown-item-title" style="font-size: 0.82rem; font-weight: 600; margin-top: 12px; margin-bottom: 8px;">🧾 รายการล่าสุดในหมวดหมู่นี้:</div>
+        <div class="detail-txns-title" style="font-size: 0.82rem; font-weight: 700; margin-top: 12px; margin-bottom: 8px;">🧾 รายการล่าสุดในหมวดหมู่นี้:</div>
         <div class="detail-txns-list" id="detail-txns-${index}" style="display: flex; flex-direction: column; gap: 6px;">
           <!-- Loaded dynamically -->
         </div>

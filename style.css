@@ -1311,11 +1311,38 @@ tr:hover td {
   border: 1px solid #fecdd3 !important;
 }
 
-/* Detail Math Box */
+/* Detail Math Box Ultra-High Contrast Styling */
 .detail-math-box {
-  background: #f8fafc !important;
-  border: 1px solid #cbd5e1 !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
+  color: #0f172a !important;
+}
+
+.detail-math-box strong,
+.detail-math-box div {
+  color: #0f172a !important;
+}
+
+.detail-math-box .math-highlight-green {
+  color: #047857 !important;
+  font-weight: 700 !important;
+}
+
+.detail-math-box .math-highlight-blue {
+  color: #0284c7 !important;
+  font-weight: 700 !important;
+}
+
+.detail-math-box .math-highlight-red {
+  color: #b91c1c !important;
+  font-weight: 700 !important;
+}
+
+.detail-math-box .math-subtext,
+.detail-math-box .math-subtext div {
+  color: #334155 !important;
+  font-weight: 600 !important;
 }
 
 /* Risk Analysis Box */
