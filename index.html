@@ -7,7 +7,7 @@
   <title>Dashboard รายได้ / รายรับ - ค่าใช้จ่าย | Premium Wealth Tracker</title>
 
   <!-- CSS Stylesheets -->
-  <link rel="stylesheet" href="style.css?v=4.0">
+  <link rel="stylesheet" href="style.css?v=5.0">
 
   <!-- Mobile Responsive Custom CSS Overrides -->
   <style>
@@ -313,39 +313,6 @@
         </button>
       </div>
     </header>
-
-    <!-- QUICK CHAT FAST ENTRY PANEL -->
-    <div class="glass-panel quick-chat-fast-card" style="margin-bottom: 24px; padding: 16px 20px; border-radius: 16px;">
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
-        <span style="font-weight: 700; font-size: 0.95rem; color: #0284c7; display: flex; align-items: center; gap: 8px;">
-          <i data-lucide="message-square-plus" size="18" style="color: #0284c7;"></i>
-          พิมพ์แชทบันทึกด่วน (Smart Quick Entry)
-        </span>
-        <span class="quick-chat-sub-text" style="font-size: 0.8rem; font-weight: 500;">พิมพ์สั้นๆ ระบบจะวิเคราะห์และให้กดยืนยันก่อนบันทึกทุกครั้ง</span>
-      </div>
-
-      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <div style="position: relative; flex: 1; min-width: 260px;">
-          <input type="text" id="quick-chat-input" class="form-input" 
-            placeholder="พิมพ์สั้นๆ เช่น: ข้าว 50 mk, เติมน้ำมัน 500 ปตท, กาแฟ 65 amazon, เงินเดือน 45000..." 
-            style="border-radius: 12px; padding: 12px 16px; font-size: 0.9rem; width: 100%;"
-            autocomplete="off">
-        </div>
-        <button type="button" id="btn-parse-quick-chat" class="btn btn-primary btn-parse-quick-chat" onclick="if(window.handleTriggerQuickChat) window.handleTriggerQuickChat(document.getElementById('quick-chat-input').value);" style="padding: 11px 22px; font-size: 0.88rem; font-weight: 700; border-radius: 12px; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer; border: none; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4); color: #ffffff;">
-          <i data-lucide="sparkles" size="16"></i>
-          <span>วิเคราะห์และยืนยัน</span>
-        </button>
-      </div>
-
-      <!-- Quick Suggestion Chips -->
-      <div style="display: flex; gap: 8px; margin-top: 12px; align-items: center; flex-wrap: wrap; font-size: 0.78rem;">
-        <span class="quick-chip-label" style="font-weight: 600;">ตัวอย่างกดลอง:</span>
-        <button type="button" class="quick-chip-btn" data-text="ข้าว 50 บาท mk">🍱 ข้าว 50 บาท mk</button>
-        <button type="button" class="quick-chip-btn" data-text="สุกี้ 399 MK kplus">🍲 สุกี้ 399 MK kplus</button>
-        <button type="button" class="quick-chip-btn" data-text="เติมน้ำมัน 500 ปตท ttb">⛽ เติมน้ำมัน 500 ปตท ttb</button>
-        <button type="button" class="quick-chip-btn" data-text="เงินเดือน 45000 ttb">💵 เงินเดือน 45000 ttb</button>
-      </div>
-    </div>
 
     <!-- STATUS BANNER -->
     <div id="status-banner" class="status-banner success" style="display: none;">
@@ -837,6 +804,39 @@
 
       <form id="txn-form" onsubmit="return false;">
         <input type="hidden" id="form-id">
+
+        <!-- SMART QUICK CHAT FAST ENTRY PANEL INSIDE FORM MODAL -->
+        <div class="quick-chat-fast-card" style="margin-bottom: 20px; padding: 14px 16px; border-radius: 14px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 6px;">
+            <span style="font-weight: 700; font-size: 0.9rem; color: #0284c7; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="message-square-plus" size="16" style="color: #0284c7;"></i>
+              พิมพ์แชทบันทึกด่วน (Smart Quick Entry)
+            </span>
+            <span class="quick-chat-sub-text" style="font-size: 0.76rem; font-weight: 500;">พิมพ์สั้นๆ แล้วกดวิเคราะห์เพื่อใส่ข้อมูลลงฟอร์มอัตโนมัติ</span>
+          </div>
+
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <div style="position: relative; flex: 1; min-width: 220px;">
+              <input type="text" id="quick-chat-input" class="form-input" 
+                placeholder="พิมพ์สั้นๆ เช่น: ข้าว 50 mk, เติมน้ำมัน 500 ปตท, กาแฟ 65 amazon..." 
+                style="border-radius: 10px; padding: 10px 14px; font-size: 0.88rem; width: 100%;"
+                autocomplete="off">
+            </div>
+            <button type="button" id="btn-parse-quick-chat" class="btn btn-primary btn-parse-quick-chat" onclick="if(window.handleTriggerQuickChat) window.handleTriggerQuickChat(document.getElementById('quick-chat-input').value);" style="padding: 10px 18px; font-size: 0.85rem; font-weight: 700; border-radius: 10px; background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%); display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: pointer; border: none; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4); color: #ffffff;">
+              <i data-lucide="sparkles" size="15"></i>
+              <span>วิเคราะห์และยืนยัน</span>
+            </button>
+          </div>
+
+          <!-- Quick Suggestion Chips -->
+          <div style="display: flex; gap: 6px; margin-top: 10px; align-items: center; flex-wrap: wrap; font-size: 0.75rem;">
+            <span class="quick-chip-label" style="font-weight: 600;">ตัวอย่างทดลอง:</span>
+            <button type="button" class="quick-chip-btn" data-text="ข้าว 50 บาท mk">🍱 ข้าว 50 mk</button>
+            <button type="button" class="quick-chip-btn" data-text="สุกี้ 399 MK kplus">🍲 สุกี้ 399 MK</button>
+            <button type="button" class="quick-chip-btn" data-text="เติมน้ำมัน 500 ปตท ttb">⛽ น้ำมัน 500 ปตท</button>
+            <button type="button" class="quick-chip-btn" data-text="เงินเดือน 45000 ttb">💵 เงินเดือน 45000</button>
+          </div>
+        </div>
 
         <!-- Slip OCR Upload Panel -->
         <div class="slip-upload-panel" id="slip-upload-container">
