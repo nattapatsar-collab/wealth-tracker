@@ -458,7 +458,7 @@ function generateId() {
 
 // Theme management
 function initTheme() {
-  const savedTheme = localStorage.getItem("wt_theme") || "dark";
+  const savedTheme = localStorage.getItem("wt_theme") || "light";
   document.documentElement.setAttribute("data-theme", savedTheme);
   updateThemeIcon();
 }
