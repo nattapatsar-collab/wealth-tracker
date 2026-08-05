@@ -1249,21 +1249,22 @@ tr:hover td {
 }
 
 .breakdown-item {
-  background: rgba(15, 23, 42, 0.85) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
   border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
 }
 
 .breakdown-item:hover {
-  background: rgba(30, 41, 59, 0.95) !important;
-  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: #f8fafc !important;
+  border-color: #0284c7 !important;
+  box-shadow: 0 6px 18px rgba(2, 132, 199, 0.15) !important;
 }
 
 .breakdown-item.active {
-  background: rgba(30, 41, 59, 0.95) !important;
-  border: 1.5px solid #38bdf8 !important;
-  box-shadow: 0 0 16px rgba(56, 189, 248, 0.3) !important;
+  background: #ffffff !important;
+  border: 2.5px solid #0284c7 !important;
+  box-shadow: 0 0 16px rgba(2, 132, 199, 0.25) !important;
 }
 
 .pace-badge {
@@ -1903,5 +1904,87 @@ overflow: hidden;
 #quick-chat-confirm-modal select option {
   background-color: #0f172a !important;
   color: #ffffff !important;
+}
+
+/* Quick Chat Fast Entry Card Theme Adaptive System */
+.quick-chat-fast-card {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05) !important;
+}
+
+.quick-chat-sub-text {
+  color: #475569 !important;
+}
+
+#quick-chat-input {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid #cbd5e1 !important;
+  font-weight: 600 !important;
+}
+
+#quick-chat-input::placeholder {
+  color: #64748b !important;
+  opacity: 1 !important;
+}
+
+.quick-chip-label {
+  color: #64748b !important;
+}
+
+.quick-chip-btn {
+  background: #f1f5f9 !important;
+  color: #334155 !important;
+  border: 1px solid #cbd5e1 !important;
+  padding: 5px 12px !important;
+  border-radius: 20px !important;
+  cursor: pointer !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+}
+
+.quick-chip-btn:hover {
+  background: #e0f2fe !important;
+  border-color: #38bdf8 !important;
+  color: #0284c7 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Dark Mode Overrides for Quick Chat Fast Entry */
+[data-theme="dark"] .quick-chat-fast-card {
+  background: rgba(15, 23, 42, 0.85) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .quick-chat-sub-text {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] #quick-chat-input {
+  background: rgba(0, 0, 0, 0.35) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-theme="dark"] #quick-chat-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .quick-chip-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .quick-chip-btn {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .quick-chip-btn:hover {
+  background: rgba(56, 189, 248, 0.2) !important;
+  border-color: rgba(56, 189, 248, 0.4) !important;
+  color: #38bdf8 !important;
 }
 
