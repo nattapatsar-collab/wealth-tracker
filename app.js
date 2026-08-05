@@ -2541,8 +2541,8 @@ function renderBudgetControl() {
         </div>
       </div>
       
-      <!-- Collapsible Detail Panel -->
-      <div class="breakdown-detail-panel ${isFilteredCategory ? 'active' : ''}" id="detail-panel-${index}" style="margin-top: 10px; margin-bottom: 8px; width: 100%;">
+      <!-- Collapsible Detail Panel (Always Displayed by Default) -->
+      <div class="breakdown-detail-panel active" id="detail-panel-${index}" style="margin-top: 10px; margin-bottom: 8px; width: 100%;">
         <div class="detail-math-box" style="padding: 14px 16px; border-radius: 12px; font-size: 0.82rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 8px;">
             <span class="${spent > limit ? 'math-highlight-red' : 'math-highlight-green'}" style="font-weight: 700; font-size: 0.9rem;">${statusText}</span>

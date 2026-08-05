@@ -1241,7 +1241,7 @@ tr:hover td {
 }
 
 .breakdown-detail-panel {
-  display: none;
+  display: block !important;
   width: 100%;
 }
 .breakdown-detail-panel.active {
