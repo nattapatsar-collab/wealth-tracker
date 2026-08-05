@@ -1761,3 +1761,25 @@ overflow: hidden;
 .quick-chip-btn:active {
   transform: translateY(1px);
 }
+
+/* Quick Chat Confirm Modal High Contrast Form Controls */
+#quick-chat-confirm-modal input,
+#quick-chat-confirm-modal select {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+#quick-chat-confirm-modal #confirm-total {
+  color: #34d399 !important;
+  -webkit-text-fill-color: #34d399 !important;
+}
+
+#quick-chat-confirm-modal select option {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+

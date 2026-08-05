@@ -1282,20 +1282,20 @@
 
   <!-- QUICK CHAT CONFIRMATION MODAL -->
   <div id="quick-chat-confirm-modal" class="modal-overlay" style="backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);">
-    <div class="modal-content glass-panel" style="max-width: 520px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+    <div class="modal-content glass-panel" style="max-width: 520px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.6); background: #0f172a !important; border: 1px solid rgba(56, 189, 248, 0.4) !important;">
       <div class="modal-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.15); padding-bottom: 14px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
         <h3 class="modal-title" style="font-size: 1.15rem; font-weight: 700; display: flex; align-items: center; gap: 8px; color: #38bdf8;">
           <i data-lucide="check-circle-2" style="color: #38bdf8;"></i>
           ยืนยันข้อมูลรายการก่อนบันทึก
         </h3>
-        <button id="btn-close-quick-confirm" class="action-btn" style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.08); border: none; cursor: pointer; color: #ffffff;">
+        <button id="btn-close-quick-confirm" class="action-btn" style="border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.1); border: none; cursor: pointer; color: #ffffff;">
           <i data-lucide="x" size="18"></i>
         </button>
       </div>
 
-      <div style="background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.85rem;">
+      <div style="background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; font-size: 0.85rem;">
         <span style="color: #cbd5e1; font-weight: 600; display: block; margin-bottom: 4px;">💬 ข้อความที่คุณพิมพ์:</span>
-        <strong id="confirm-raw-text" style="color: #38bdf8; font-size: 0.95rem;">""</strong>
+        <strong id="confirm-raw-text" style="color: #38bdf8; font-size: 1rem; font-weight: 700;">""</strong>
       </div>
 
       <form id="quick-confirm-form" onsubmit="return false;">
@@ -1303,54 +1303,54 @@
           <!-- Type and Date -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
-              <label class="form-label" style="font-weight: 600; font-size: 0.8rem; color: #cbd5e1;">ประเภท</label>
-              <select id="confirm-type" class="form-input" style="border-radius: 10px; padding: 8px 10px; font-size: 0.85rem;">
-                <option value="Expense">ค่าใช้จ่าย (Expenses)</option>
-                <option value="Income">รายได้ / รายรับ (Income)</option>
+              <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #38bdf8;">ประเภท</label>
+              <select id="confirm-type" class="form-input" style="border-radius: 10px; padding: 9px 12px; font-size: 0.88rem; background: #1e293b !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important; font-weight: 600;">
+                <option value="Expense" style="background: #0f172a; color: #ffffff;">ค่าใช้จ่าย (Expenses)</option>
+                <option value="Income" style="background: #0f172a; color: #ffffff;">รายได้ / รายรับ (Income)</option>
               </select>
             </div>
             <div>
-              <label class="form-label" style="font-weight: 600; font-size: 0.8rem; color: #cbd5e1;">วันที่ทำรายการ</label>
-              <input type="date" id="confirm-date" class="form-input" style="border-radius: 10px; padding: 8px 10px; font-size: 0.85rem;" required>
+              <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #38bdf8;">วันที่ทำรายการ</label>
+              <input type="date" id="confirm-date" class="form-input" style="border-radius: 10px; padding: 9px 12px; font-size: 0.88rem; background: #1e293b !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important; font-weight: 600;" required>
             </div>
           </div>
 
           <!-- Total Amount -->
           <div>
-            <label class="form-label" style="font-weight: 600; font-size: 0.8rem; color: #cbd5e1;">ยอดเงิน (บาท)</label>
-            <input type="number" id="confirm-total" class="form-input" step="0.01" min="0.01" style="border-radius: 10px; padding: 10px 12px; font-size: 1.1rem; font-weight: 700; color: #34d399;" required>
+            <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #38bdf8;">ยอดเงิน (บาท)</label>
+            <input type="number" id="confirm-total" class="form-input" step="0.01" min="0.01" style="border-radius: 10px; padding: 10px 14px; font-size: 1.25rem; font-weight: 700; background: #1e293b !important; color: #34d399 !important; border: 1px solid #34d399 !important;" required>
           </div>
 
           <!-- Category and Platform -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
-              <label class="form-label" style="font-weight: 600; font-size: 0.8rem; color: #cbd5e1;">หมวดหมู่</label>
-              <input type="text" id="confirm-category" class="form-input" style="border-radius: 10px; padding: 8px 10px; font-size: 0.85rem;" required>
+              <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #38bdf8;">หมวดหมู่</label>
+              <input type="text" id="confirm-category" class="form-input" style="border-radius: 10px; padding: 9px 12px; font-size: 0.88rem; background: #1e293b !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important; font-weight: 600;" required>
             </div>
             <div>
-              <label class="form-label" style="font-weight: 600; font-size: 0.8rem; color: #cbd5e1;">บัญชี / แพลตฟอร์ม</label>
-              <input type="text" id="confirm-platform" class="form-input" style="border-radius: 10px; padding: 8px 10px; font-size: 0.85rem;" required>
+              <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #38bdf8;">บัญชี / แพลตฟอร์ม</label>
+              <input type="text" id="confirm-platform" class="form-input" style="border-radius: 10px; padding: 9px 12px; font-size: 0.88rem; background: #1e293b !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important; font-weight: 600;" required>
             </div>
           </div>
 
           <!-- Location and Remark -->
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div>
-              <label class="form-label" style="font-weight: 600; font-size: 0.8rem; color: #cbd5e1;">ร้านค้า / สถานที่</label>
-              <input type="text" id="confirm-location" class="form-input" style="border-radius: 10px; padding: 8px 10px; font-size: 0.85rem;" placeholder="ไม่ระบุ">
+              <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #38bdf8;">ร้านค้า / สถานที่</label>
+              <input type="text" id="confirm-location" class="form-input" style="border-radius: 10px; padding: 9px 12px; font-size: 0.88rem; background: #1e293b !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important; font-weight: 600;" placeholder="ไม่ระบุ">
             </div>
             <div>
-              <label class="form-label" style="font-weight: 600; font-size: 0.8rem; color: #cbd5e1;">หมายเหตุ</label>
-              <input type="text" id="confirm-remark" class="form-input" style="border-radius: 10px; padding: 8px 10px; font-size: 0.85rem;" placeholder="เพิ่มเติม...">
+              <label class="form-label" style="font-weight: 700; font-size: 0.82rem; color: #38bdf8;">หมายเหตุ</label>
+              <input type="text" id="confirm-remark" class="form-input" style="border-radius: 10px; padding: 9px 12px; font-size: 0.88rem; background: #1e293b !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important; font-weight: 600;" placeholder="เพิ่มเติม...">
             </div>
           </div>
         </div>
 
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 14px;">
-          <button type="button" id="btn-cancel-quick-confirm" class="btn btn-secondary" style="border-radius: 10px; padding: 10px 16px; background: rgba(255,255,255,0.08); color: #cbd5e1;">
+          <button type="button" id="btn-cancel-quick-confirm" class="btn btn-secondary" style="border-radius: 10px; padding: 10px 18px; background: rgba(255,255,255,0.1) !important; color: #ffffff !important; border: 1px solid rgba(255,255,255,0.2) !important; font-weight: 600;">
             ยกเลิก
           </button>
-          <button type="button" id="btn-submit-quick-confirm" class="btn btn-primary" style="border-radius: 10px; padding: 10px 24px; background: #10b981; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 6px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+          <button type="button" id="btn-submit-quick-confirm" class="btn btn-primary" style="border-radius: 10px; padding: 10px 24px; background: #10b981 !important; font-weight: 700; color: #ffffff !important; display: flex; align-items: center; gap: 6px; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
             <i data-lucide="check" size="16"></i>
             ยืนยันบันทึกข้อมูล
           </button>
