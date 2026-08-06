@@ -5944,11 +5944,74 @@ document.addEventListener("DOMContentLoaded", async () => {
     return compCanvas.toDataURL("image/png");
   }
 
-  function openChartImageModal() {
+  // --- SHORTLINK GENERATOR FOR IMAGE URL ---
+  async function shortenImageLink(dataUrl) {
+    if (!dataUrl) return "";
+
+    // 1. Try Catbox.moe API (Fast & clean direct image shortlink)
+    try {
+      const fetchRes = await fetch(dataUrl);
+      const blob = await fetchRes.blob();
+
+      const formData = new FormData();
+      formData.append("reqtype", "fileupload");
+      formData.append("fileToUpload", blob, `wealth_summary_${Date.now()}.png`);
+
+      const catboxRes = await fetch("https://catbox.moe/user/api.php", {
+        method: "POST",
+        body: formData
+      });
+
+      if (catboxRes.ok) {
+        const shortUrl = await catboxRes.text();
+        if (shortUrl && shortUrl.trim().startsWith("http")) {
+          return shortUrl.trim();
+        }
+      }
+    } catch (e) {
+      console.warn("Catbox API upload fallback:", e);
+    }
+
+    // 2. Try Tmpfiles.org API
+    try {
+      const fetchRes = await fetch(dataUrl);
+      const blob = await fetchRes.blob();
+
+      const formData = new FormData();
+      formData.append("file", blob, `wealth_summary_${Date.now()}.png`);
+
+      const tmpRes = await fetch("https://tmpfiles.org/api/v1/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (tmpRes.ok) {
+        const json = await tmpRes.json();
+        if (json && json.data && json.data.url) {
+          return json.data.url.replace("tmpfiles.org/", "tmpfiles.org/dl/");
+        }
+      }
+    } catch (e) {
+      console.warn("Tmpfiles API upload fallback:", e);
+    }
+
+    // 3. Fallback to Blob URL if offline / network block
+    try {
+      const fetchRes = await fetch(dataUrl);
+      const blob = await fetchRes.blob();
+      return URL.createObjectURL(blob);
+    } catch (e) {
+      return dataUrl;
+    }
+  }
+
+  async function openChartImageModal() {
     const modal = document.getElementById("chart-image-modal");
     const imgPreview = document.getElementById("chart-summary-img-preview");
     const directLink = document.getElementById("chart-image-direct-link");
     const downloadBtn = document.getElementById("btn-download-chart-image");
+    const shortlinkInput = document.getElementById("chart-image-shortlink-input");
+    const loadingStatus = document.getElementById("shortlink-loading-status");
 
     if (!modal) return;
 
@@ -5958,8 +6021,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       if (directLink) directLink.href = dataUrl;
       if (downloadBtn) downloadBtn.href = dataUrl;
 
+      if (shortlinkInput) shortlinkInput.value = "กำลังสร้าง Shortlink สั้น...";
+      if (loadingStatus) loadingStatus.style.display = "inline";
+
       modal.classList.add("active");
       if (window.lucide) window.lucide.createIcons();
+
+      // Async Shortlink creation
+      const shortUrl = await shortenImageLink(dataUrl);
+      if (shortlinkInput) shortlinkInput.value = shortUrl;
+      if (directLink) directLink.href = shortUrl;
+      if (loadingStatus) loadingStatus.style.display = "none";
     } catch (e) {
       console.error("Error generating chart image:", e);
       showStatus("เกิดข้อผิดพลาดในการสร้างรูปภาพกราฟ", "error");
@@ -5990,15 +6062,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   if (btnCopyChartImageLink) {
     btnCopyChartImageLink.addEventListener("click", () => {
+      const shortlinkInput = document.getElementById("chart-image-shortlink-input");
       const imgPreview = document.getElementById("chart-summary-img-preview");
-      if (imgPreview && imgPreview.src) {
-        const linkUrl = imgPreview.src;
+      const urlToCopy = (shortlinkInput && shortlinkInput.value && !shortlinkInput.value.includes("กำลังสร้าง")) 
+        ? shortlinkInput.value 
+        : (imgPreview ? imgPreview.src : "");
+
+      if (urlToCopy) {
         if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(linkUrl)
-            .then(() => showStatus("คัดลอกลิงก์รูปภาพสรุปสำเร็จ!", "success"))
-            .catch(() => fallbackCopyText(linkUrl));
+          navigator.clipboard.writeText(urlToCopy)
+            .then(() => showStatus("คัดลอก Shortlink รูปภาพสรุปสำเร็จ!", "success"))
+            .catch(() => fallbackCopyText(urlToCopy));
         } else {
-          fallbackCopyText(linkUrl);
+          fallbackCopyText(urlToCopy);
         }
       }
     });

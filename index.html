@@ -1229,24 +1229,42 @@
           <img id="chart-summary-img-preview" src="" alt="Chart Summary Preview" style="max-width: 100%; max-height: 450px; border-radius: 8px; object-fit: contain; box-shadow: 0 8px 24px rgba(0,0,0,0.6);">
         </div>
 
-        <!-- Direct Link & Copy / Download Buttons Bar -->
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 16px;">
-          <a id="chart-image-direct-link" href="#" target="_blank" class="btn btn-primary" style="background: #0284c7 !important; color: #ffffff !important; font-weight: 700; border-radius: 10px; padding: 12px 20px; display: flex; align-items: center; gap: 8px; text-decoration: none; font-size: 0.9rem; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.4);">
-            <i data-lucide="external-link" size="18"></i> เปิดดูรูปภาพขนาดเต็ม (Direct Link)
-          </a>
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <button type="button" id="btn-copy-chart-image-link" class="btn btn-secondary" style="background: #1e293b !important; color: #ffffff !important; border: 1px solid #475569 !important; border-radius: 10px; padding: 12px 18px; font-size: 0.9rem; font-weight: 600; display: flex; align-items: center; gap: 6px;">
-              <i data-lucide="copy" size="18"></i> คัดลอกลิงก์รูปภาพ
-            </button>
-            <a id="btn-download-chart-image" href="#" download="wealth-tracker-chart-summary.png" class="btn btn-secondary" style="background: #059669 !important; color: #ffffff !important; border: none !important; font-weight: 700; border-radius: 10px; padding: 12px 20px; font-size: 0.9rem; display: flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);">
-              <i data-lucide="download" size="18"></i> ดาวน์โหลดรูปภาพ
-            </a>
+        <!-- Shortlink Generator Section -->
+        <div style="background: #1e293b; border: 1px solid #0284c7; border-radius: 12px; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.82rem; font-weight: 700; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+              <i data-lucide="link-2" size="16" style="color: #38bdf8;"></i>
+              Shortlink ลิงก์รูปภาพสั้น (สำหรับแชร์/ส่งต่อ)
+            </span>
+            <span id="shortlink-loading-status" style="font-size: 0.76rem; color: #34d399; font-weight: 600; display: none;">
+              ⚡ กำลังแปลงเป็น Shortlink...
+            </span>
           </div>
+
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="text" id="chart-image-shortlink-input" readonly 
+              placeholder="กำลังสร้าง Shortlink สั้น..." 
+              style="flex: 1; background: #0f172a; color: #38bdf8; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 9px 12px; font-size: 0.85rem; font-weight: 600;" 
+              onclick="this.select();">
+            <button type="button" id="btn-copy-chart-image-link" class="btn btn-primary" style="background: #0284c7 !important; color: #ffffff !important; font-weight: 700; border-radius: 8px; padding: 9px 16px; font-size: 0.85rem; display: flex; align-items: center; gap: 6px; cursor: pointer; border: none; white-space: nowrap; box-shadow: 0 2px 8px rgba(2, 132, 199, 0.4);">
+              <i data-lucide="copy" size="16"></i> คัดลอก Shortlink
+            </button>
+          </div>
+        </div>
+
+        <!-- Direct View & Download Bar -->
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.15); padding-top: 14px;">
+          <a id="chart-image-direct-link" href="#" target="_blank" class="btn btn-secondary" style="background: #334155 !important; color: #ffffff !important; font-weight: 600; border-radius: 10px; padding: 10px 18px; display: flex; align-items: center; gap: 6px; text-decoration: none; font-size: 0.85rem;">
+            <i data-lucide="external-link" size="16"></i> เปิดรูปขนาดเต็ม
+          </a>
+          <a id="btn-download-chart-image" href="#" download="wealth-tracker-chart-summary.png" class="btn btn-secondary" style="background: #059669 !important; color: #ffffff !important; border: none !important; font-weight: 700; border-radius: 10px; padding: 10px 20px; font-size: 0.88rem; display: flex; align-items: center; gap: 6px; text-decoration: none; box-shadow: 0 4px 14px rgba(5, 150, 105, 0.4);">
+            <i data-lucide="download" size="16"></i> ดาวน์โหลดรูปภาพ
+          </a>
         </div>
       </div>
     </div>
   <!-- Main JavaScript App Code -->
-  <script src="app.js?v=10.0"></script>
+  <script src="app.js?v=11.0"></script>
 </body>
 
 </html>
