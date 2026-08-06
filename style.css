@@ -1305,21 +1305,18 @@ tr:hover td {
   border: 1px solid #fed7aa !important;
 }
 
-.pace-badge.danger {
-  background: #ffe4e6 !important;
-  color: #be123c !important;
-  border: 1px solid #fecdd3 !important;
-}
-
-/* Detail Math Box Ultra-High Contrast Styling */
+/* Detail Math Box - Pure Light Tone (No dark backgrounds allowed) */
 .detail-math-box {
   background: #ffffff !important;
   border: 1.5px solid #cbd5e1 !important;
+  border-radius: 12px !important;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06) !important;
   color: #0f172a !important;
 }
 
+.detail-math-box *,
 .detail-math-box strong,
+.detail-math-box span,
 .detail-math-box div {
   color: #0f172a !important;
 }
@@ -1340,6 +1337,7 @@ tr:hover td {
 }
 
 .detail-math-box .math-subtext,
+.detail-math-box .math-subtext *,
 .detail-math-box .math-subtext div {
   color: #334155 !important;
   font-weight: 600 !important;
@@ -1451,7 +1449,6 @@ tr:hover td {
   border: 1px solid rgba(239, 68, 68, 0.5) !important;
 }
 
-[data-theme="dark"] .detail-math-box,
 [data-theme="dark"] .budget-risk-box {
   background: rgba(15, 23, 42, 0.85) !important;
   border: 1px solid rgba(255, 255, 255, 0.15) !important;

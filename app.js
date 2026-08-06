@@ -456,10 +456,10 @@ function generateId() {
   return Math.random().toString(36).substring(2, 11);
 }
 
-// Theme management
+// Theme management (Default to pure light mode)
 function initTheme() {
-  const savedTheme = localStorage.getItem("wt_theme") || "light";
-  document.documentElement.setAttribute("data-theme", savedTheme);
+  document.documentElement.setAttribute("data-theme", "light");
+  localStorage.setItem("wt_theme", "light");
   updateThemeIcon();
 }
 
