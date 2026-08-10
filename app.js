@@ -5629,12 +5629,25 @@ document.addEventListener("DOMContentLoaded", async () => {
     return text;
   }
 
+  function getCategoryBudgetLimitInfo(catName, totalDays, periodDaysInMonth) {
+    const catObj = BUDGET_LIMITS.find(b => b.name === catName);
+    if (!catObj || catObj.limit <= 0) return null;
+
+    const divisor = periodDaysInMonth || 30;
+    const scaledLimit = (catObj.limit / divisor) * totalDays;
+    return {
+      baseLimit: catObj.limit,
+      scaledLimit: scaledLimit
+    };
+  }
+
   function generateSummaryText(mode) {
     const activeTab = document.querySelector(".time-tab-btn.active");
     const rangeText = activeTab ? activeTab.textContent.trim() : "ช่วงเวลาที่เลือก";
     
     const expenses = filteredTransactions.filter(t => t.type === "Expense");
     const incomes = filteredTransactions.filter(t => t.type === "Income");
+    const daysInfo = getBillingDaysInfo();
     
     let text = "";
     
@@ -5657,13 +5670,24 @@ document.addEventListener("DOMContentLoaded", async () => {
       text += `📊 สรุปค่าใช้จ่าย (${rangeText})\n`;
       text += `------------------------\n`;
       sorted.forEach(cat => {
-        text += `${getCategoryEmoji(cat)} ${cat}: ${formatCurrency(categorySpent[cat])}\n`;
+        const spent = categorySpent[cat] || 0;
+        const bInfo = getCategoryBudgetLimitInfo(cat, daysInfo.totalDays, daysInfo.periodDaysInMonth);
+        let budgetStr = "";
+        if (bInfo && bInfo.scaledLimit > 0) {
+          const limit = bInfo.scaledLimit;
+          const rem = limit - spent;
+          if (rem >= 0) {
+            budgetStr = ` (เหลือ ${formatCurrency(rem)}/${formatCurrency(limit)})`;
+          } else {
+            budgetStr = ` (เกินงบ ฿${Math.abs(rem).toLocaleString("th-TH", {minimumFractionDigits: 2})}/${formatCurrency(limit)})`;
+          }
+        }
+        text += `${getCategoryEmoji(cat)} ${cat}: ${formatCurrency(spent)}${budgetStr}\n`;
       });
       text += `------------------------\n`;
       text += `💰 รวมทั้งหมด: ${formatCurrency(totalSpent)}`;
       
       // Append risk analysis
-      const daysInfo = getBillingDaysInfo();
       const totalLimit = getBillingTotalBudgetLimit(daysInfo.totalDays);
       text += appendBudgetRiskAnalysis(totalSpent, totalLimit, daysInfo.elapsedDays, daysInfo.totalDays);
       
@@ -5731,7 +5755,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         text += `ไม่มีรายการค่าใช้จ่าย\n`;
       } else {
         sortedExpenses.forEach(cat => {
-          text += `${getCategoryEmoji(cat)} ${cat}: ${formatCurrency(categorySpent[cat])}\n`;
+          const spent = categorySpent[cat] || 0;
+          const bInfo = getCategoryBudgetLimitInfo(cat, daysInfo.totalDays, daysInfo.periodDaysInMonth);
+          let budgetStr = "";
+          if (bInfo && bInfo.scaledLimit > 0) {
+            const limit = bInfo.scaledLimit;
+            const rem = limit - spent;
+            if (rem >= 0) {
+              budgetStr = ` (เหลือ ${formatCurrency(rem)}/${formatCurrency(limit)})`;
+            } else {
+              budgetStr = ` (เกินงบ ฿${Math.abs(rem).toLocaleString("th-TH", {minimumFractionDigits: 2})}/${formatCurrency(limit)})`;
+            }
+          }
+          text += `${getCategoryEmoji(cat)} ${cat}: ${formatCurrency(spent)}${budgetStr}\n`;
         });
       }
       
@@ -5742,7 +5778,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       text += `✨ คงเหลือสุทธิ: ${formatCurrency(netBalance)}`;
       
       // Append risk analysis
-      const daysInfo = getBillingDaysInfo();
       const totalLimit = getBillingTotalBudgetLimit(daysInfo.totalDays);
       text += appendBudgetRiskAnalysis(totalSpent, totalLimit, daysInfo.elapsedDays, daysInfo.totalDays);
     }
