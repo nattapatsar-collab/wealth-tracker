@@ -5629,6 +5629,61 @@ document.addEventListener("DOMContentLoaded", async () => {
     return text;
   }
 
+  function appendRuleGroupBudgetSummary(expenses, daysInfo) {
+    const groupLimits = { Needs: 0, Wants: 0, Savings: 0 };
+    const groupSpent = { Needs: 0, Wants: 0, Savings: 0 };
+
+    BUDGET_LIMITS.forEach(b => {
+      const group = b.ruleGroup || getCategoryRuleGroup(b.name);
+      const divisor = daysInfo.periodDaysInMonth || 30;
+      const scaled = (b.limit / divisor) * daysInfo.totalDays;
+      if (groupLimits.hasOwnProperty(group)) {
+        groupLimits[group] += scaled;
+      }
+    });
+
+    expenses.forEach(t => {
+      const amt = parseFloat(t.total) || 0;
+      const cat = t.category || "เบ็ดเตล็ดและอื่น ๆ";
+      const group = getCategoryRuleGroup(cat);
+      if (groupSpent.hasOwnProperty(group)) {
+        groupSpent[group] += amt;
+      } else {
+        groupSpent["Wants"] += amt;
+      }
+    });
+
+    let text = `\n------------------------\n`;
+    text += `🎯 สรุปงบรวมแยกตามประเภท (50/30/20):\n`;
+
+    const groups = [
+      { key: "Needs", name: "จำเป็น (Needs)", emoji: "🏠" },
+      { key: "Wants", name: "ทั่วไป (Wants)", emoji: "🛍️" },
+      { key: "Savings", name: "เงินออม (Savings)", emoji: "💎" }
+    ];
+
+    groups.forEach(g => {
+      const spent = groupSpent[g.key] || 0;
+      const limit = groupLimits[g.key] || 0;
+      let budgetStr = "";
+
+      if (limit > 0) {
+        const rem = limit - spent;
+        if (rem >= 0) {
+          budgetStr = ` (เหลือ ${formatCurrency(rem)}/${formatCurrency(limit)})`;
+        } else {
+          budgetStr = ` (เกินงบ ฿${Math.abs(rem).toLocaleString("th-TH", {minimumFractionDigits: 2})}/${formatCurrency(limit)})`;
+        }
+      } else {
+        budgetStr = ` (ใช้ไป ${formatCurrency(spent)})`;
+      }
+
+      text += `${g.emoji} ${g.name}: ${formatCurrency(spent)}${budgetStr}\n`;
+    });
+
+    return text;
+  }
+
   function getCategoryBudgetLimitInfo(catName, totalDays, periodDaysInMonth) {
     const catObj = BUDGET_LIMITS.find(b => b.name === catName);
     if (!catObj || catObj.limit <= 0) return null;
@@ -5687,6 +5742,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       text += `------------------------\n`;
       text += `💰 รวมทั้งหมด: ${formatCurrency(totalSpent)}`;
       
+      // Append rule group summary
+      text += appendRuleGroupBudgetSummary(expenses, daysInfo);
+
       // Append risk analysis
       const totalLimit = getBillingTotalBudgetLimit(daysInfo.totalDays);
       text += appendBudgetRiskAnalysis(totalSpent, totalLimit, daysInfo.elapsedDays, daysInfo.totalDays);
@@ -5777,6 +5835,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       text += `🔴 รวมรายจ่าย: ${formatCurrency(totalSpent)}\n`;
       text += `✨ คงเหลือสุทธิ: ${formatCurrency(netBalance)}`;
       
+      // Append rule group summary
+      text += appendRuleGroupBudgetSummary(expenses, daysInfo);
+
       // Append risk analysis
       const totalLimit = getBillingTotalBudgetLimit(daysInfo.totalDays);
       text += appendBudgetRiskAnalysis(totalSpent, totalLimit, daysInfo.elapsedDays, daysInfo.totalDays);
